@@ -1,0 +1,2106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#09090b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Patitas El Alto" />
+  <link id="pwa-manifest-link" rel="manifest" href="" />
+  <link id="pwa-apple-icon" rel="apple-touch-icon" href="" />
+  <title>PATITAS | EL ALTO · Red Solidaria Animal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+            body: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            miu: {
+              dark: '#09090B',
+              cardDark: '#141418',
+              amber: '#EC4899',
+              amberHover: '#DB2777',
+              orange: '#F472B6',
+              light: '#FDF2F8',
+              cream: '#FCE7F3',
+              emerald: '#10B981',
+              ink: '#111113',
+              muted: '#6E5A67'
+            }
+          },
+          boxShadow: {
+            'amber-glow': '0 10px 28px -6px rgba(236, 72, 153, 0.42)',
+            'card-soft': '0 4px 20px -2px rgba(17, 17, 19, 0.06)',
+            'phone': '0 25px 70px -12px rgba(0, 0, 0, 0.65)'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: radial-gradient(circle at top, #271320 0%, #09090B 100%);
+      font-family: 'Inter', sans-serif;
+      color: #111113;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, h4, .font-display {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Animación entrada de vistas */
+    @keyframes viewEnter {
+      from { opacity: 0; transform: translateY(10px) scale(0.99); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .view-animate {
+      animation: viewEnter 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Animación apertura de App desde Escritorio */
+    @keyframes appLaunchZoom {
+      0% { transform: scale(0.35); opacity: 0; border-radius: 48px; }
+      100% { transform: scale(1); opacity: 1; border-radius: 0px; }
+    }
+    .app-launching {
+      animation: appLaunchZoom 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* Pulso de marcadores en mapa */
+    @keyframes mapPing {
+      0% { transform: scale(0.8); opacity: 0.9; }
+      75%, 100% { transform: scale(2.2); opacity: 0; }
+    }
+    .map-ping {
+      animation: mapPing 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+      transform-origin: center;
+      transform-box: fill-box;
+    }
+
+    /* Ruta animada punteada */
+    @keyframes dashFlow {
+      to { stroke-dashoffset: -36; }
+    }
+    .route-flow {
+      stroke-dasharray: 8 6;
+      animation: dashFlow 1.2s linear infinite;
+    }
+
+    /* Haz láser de escaneo QR */
+    @keyframes laserSweep {
+      0% { top: 8%; opacity: 0.95; }
+      50% { top: 88%; opacity: 1; }
+      100% { top: 8%; opacity: 0.95; }
+    }
+    .qr-laser-beam {
+      position: absolute;
+      left: 6%;
+      right: 6%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #EC4899, #F472B6, #10B981, transparent);
+      box-shadow: 0 0 12px 2px rgba(236, 72, 153, 0.85);
+      border-radius: 999px;
+      animation: laserSweep 1.6s ease-in-out infinite;
+    }
+
+    /* Anillo de progreso circular */
+    .ring-circle {
+      transition: stroke-dashoffset 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+
+    /* Modo pantalla completa */
+    body.fullscreen-mode {
+      background: #0F1115;
+      padding: 0 !important;
+    }
+    body.fullscreen-mode #phone-frame {
+      max-width: 540px;
+      height: 100vh !important;
+      min-height: 100vh !important;
+      border-radius: 0 !important;
+      border-width: 0 !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center sm:py-4">
+
+  <!-- Barra superior externa (solo desktop/tablet) para expandir o volver al escritorio -->
+  <div class="hidden sm:flex items-center justify-between w-full max-w-[430px] mb-2.5 px-1 text-xs text-stone-300">
+    <div class="flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-miu-emerald animate-pulse"></span>
+      <span class="font-semibold tracking-wide">Prototipo Interactivo Nativo · v2.5</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="openLauncher()" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold transition flex items-center gap-1">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+        <span>Escritorio</span>
+      </button>
+      <button onclick="toggleFullscreenMode()" id="btn-fullscreen-label" class="px-2.5 py-1 rounded-lg bg-miu-amber text-miu-dark font-bold hover:bg-miu-amberHover transition flex items-center gap-1">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+        <span>Expandir</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MARCO DE TELÉFONO MÓVIL REALISTA -->
+  <div id="phone-frame" class="w-full max-w-[430px] h-screen sm:h-[850px] bg-miu-dark sm:rounded-[42px] sm:border-[7px] sm:border-stone-800 shadow-phone relative overflow-hidden flex flex-col select-none">
+
+    <!-- BARRA DE ESTADO SUPERIOR DEL CELULAR -->
+    <div id="device-statusbar" class="px-5 pt-2.5 pb-1.5 flex items-center justify-between text-[11px] font-semibold text-white bg-miu-dark z-40 shrink-0 transition-colors duration-300">
+      <span id="live-clock">10:35 a. m.</span>
+      <!-- Notch / Cámara -->
+      <div class="hidden sm:block w-24 h-4 bg-black rounded-full border border-stone-800/80"></div>
+      <div class="flex items-center gap-1.5">
+        <span class="text-[10px] opacity-80">5G</span>
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M2 20h20V4L2 20z"/></svg>
+        <div class="flex items-center gap-0.5 bg-white/15 px-1.5 py-0.5 rounded text-[10px]">
+          <span>94%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- PANTALLA 0: ESCRITORIO / LANZADOR ANDROID (AL TOCAR ABRE SPLASH + APP)  -->
+    <!-- ======================================================================= -->
+    <div id="screen-launcher" class="absolute inset-0 top-7 z-30 flex flex-col justify-between p-6 text-white transition-opacity duration-300" style="background: linear-gradient(155deg, #160D13 0%, #4A1833 48%, #09090B 100%);">
+      <!-- Widget Reloj y Clima El Alto -->
+      <div class="mt-8 space-y-1">
+        <div class="text-5xl font-display font-extrabold tracking-tight" id="launcher-big-time">10:35</div>
+        <div class="text-xs font-medium text-pink-200 flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-miu-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <span>El Alto, La Paz · 14°C Soleado</span>
+        </div>
+        <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-black/40 backdrop-blur-md border border-pink-400/20 text-[11px] text-pink-100">
+          <span class="w-2 h-2 rounded-full bg-miu-emerald animate-ping"></span>
+          <span>Refugio Ciudad Satélite activo · 14 rescatados</span>
+        </div>
+      </div>
+
+      <!-- Cuadrícula de Apps con Icono Principal Animado "Patitas App" -->
+      <div class="my-auto flex flex-col items-center">
+        <div class="grid grid-cols-3 gap-6 w-full max-w-[290px] items-center justify-items-center">
+          <!-- App decorativa 1 -->
+          <div onclick="launchPatitasApp()" class="flex flex-col items-center gap-1.5 opacity-65 hover:opacity-100 cursor-pointer transition">
+            <div class="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 flex items-center justify-center">
+              <svg class="w-7 h-7 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <span class="text-[11px] font-medium text-stone-300">Refugios</span>
+          </div>
+
+          <!-- ICONO PRINCIPAL DESTACADO: PATITAS EL ALTO -->
+          <button onclick="launchPatitasApp()" class="group flex flex-col items-center gap-2 focus:outline-none relative">
+            <span class="absolute -top-2 -right-2 px-1.5 py-0.5 rounded-full bg-miu-emerald text-[9px] font-extrabold text-white shadow-md z-10 animate-bounce">ABRIR</span>
+            <div class="w-16 h-16 rounded-[22px] bg-miu-dark border-2 border-miu-amber shadow-amber-glow flex items-center justify-center group-hover:scale-110 group-active:scale-95 transition-transform duration-200">
+              <!-- Icono Huella + Corazón -->
+              <svg class="w-9 h-9 text-miu-amber" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="6.5" cy="9.5" r="2.2"/>
+                <circle cx="10.2" cy="6.2" r="2.2"/>
+                <circle cx="14.8" cy="6.2" r="2.2"/>
+                <circle cx="18.2" cy="9.5" r="2.2"/>
+                <path d="M12 11.5c-3.2 0-5.8 2.3-5.8 5.1 0 1.8 1.4 3.1 3.1 3.1 1 0 1.8-.4 2.7-.4s1.7.4 2.7.4c1.7 0 3.1-1.3 3.1-3.1 0-2.8-2.6-5.1-5.8-5.1z"/>
+              </svg>
+            </div>
+            <span class="text-xs font-bold text-white tracking-tight drop-shadow">Patitas App</span>
+          </button>
+
+          <!-- App decorativa 2 -->
+          <div onclick="launchPatitasApp('qr')" class="flex flex-col items-center gap-1.5 opacity-65 hover:opacity-100 cursor-pointer transition">
+            <div class="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 flex items-center justify-center">
+              <svg class="w-7 h-7 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><path d="M3 14h7v7H3z"/></svg>
+            </div>
+            <span class="text-[11px] font-medium text-stone-300">QR Solidario</span>
+          </div>
+        </div>
+
+        <button onclick="launchPatitasApp()" class="mt-8 px-5 py-2.5 rounded-full bg-miu-amber text-miu-dark font-extrabold text-xs shadow-amber-glow hover:bg-miu-amberHover active:scale-95 transition flex items-center gap-2">
+          <span>Toca el icono para iniciar la experiencia</span>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+
+      <!-- Dock inferior del teléfono -->
+      <div class="mb-2 flex items-center justify-around bg-white/10 backdrop-blur-md rounded-3xl py-3 px-4 border border-white/10">
+        <div onclick="launchPatitasApp()" class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center cursor-pointer">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div onclick="launchPatitasApp('map')" class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-300 flex items-center justify-center cursor-pointer">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+        </div>
+        <div onclick="launchPatitasApp('dogs')" class="w-10 h-10 rounded-2xl bg-rose-500/20 text-rose-300 flex items-center justify-center cursor-pointer">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        <div onclick="launchPatitasApp('store')" class="w-10 h-10 rounded-2xl bg-sky-500/20 text-sky-300 flex items-center justify-center cursor-pointer">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- SPLASH SCREEN ANIMADO DE TRANSICIÓN                                     -->
+    <!-- ======================================================================= -->
+    <div id="screen-splash" class="hidden absolute inset-0 top-7 z-40 bg-miu-dark flex flex-col items-center justify-center text-white p-6">
+      <div class="w-20 h-20 rounded-3xl bg-miu-amber text-miu-dark flex items-center justify-center shadow-amber-glow animate-bounce mb-4">
+        <svg class="w-11 h-11" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="6.5" cy="9.5" r="2.2"/><circle cx="10.2" cy="6.2" r="2.2"/><circle cx="14.8" cy="6.2" r="2.2"/><circle cx="18.2" cy="9.5" r="2.2"/>
+          <path d="M12 11.5c-3.2 0-5.8 2.3-5.8 5.1 0 1.8 1.4 3.1 3.1 3.1 1 0 1.8-.4 2.7-.4s1.7.4 2.7.4c1.7 0 3.1-1.3 3.1-3.1 0-2.8-2.6-5.1-5.8-5.1z"/>
+        </svg>
+      </div>
+      <h2 class="text-xl font-extrabold tracking-tight">PATITAS | EL ALTO</h2>
+      <p class="text-xs text-stone-400 mt-1">Sincronizando refugios y fondo solidario...</p>
+      <div class="w-44 h-1.5 bg-white/10 rounded-full overflow-hidden mt-5">
+        <div id="splash-progress" class="h-full bg-miu-amber rounded-full transition-all duration-500" style="width: 15%;"></div>
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- PANTALLA 1: PORTAL DE BIENVENIDA OSCURO CON TARJETAS ÁMBAR GRANDES      -->
+    <!-- ======================================================================= -->
+    <div id="screen-portal" class="hidden flex-1 bg-miu-dark text-white overflow-y-auto no-scrollbar px-5 pt-4 pb-6 flex flex-col justify-between">
+      <div>
+        <!-- Encabezado con badge de marca -->
+        <div class="flex items-center justify-between mb-4">
+          <button onclick="openLauncher()" class="text-[11px] font-semibold text-stone-400 hover:text-white flex items-center gap-1 transition">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            <span>Escritorio</span>
+          </button>
+          <span class="px-2.5 py-1 rounded-full bg-miu-emerald/15 border border-miu-emerald/30 text-miu-emerald text-[10px] font-bold flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-miu-emerald animate-ping"></span>
+            EN LÍNEA · EL ALTO
+          </span>
+        </div>
+
+        <!-- Logo central estilo MIU | UNIFRANZ -->
+        <div class="text-center mb-5">
+          <div class="w-14 h-14 rounded-2xl bg-miu-amber text-miu-dark mx-auto flex items-center justify-center shadow-amber-glow mb-2.5">
+            <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="6.5" cy="9.5" r="2.2"/><circle cx="10.2" cy="6.2" r="2.2"/><circle cx="14.8" cy="6.2" r="2.2"/><circle cx="18.2" cy="9.5" r="2.2"/>
+              <path d="M12 11.5c-3.2 0-5.8 2.3-5.8 5.1 0 1.8 1.4 3.1 3.1 3.1 1 0 1.8-.4 2.7-.4s1.7.4 2.7.4c1.7 0 3.1-1.3 3.1-3.1 0-2.8-2.6-5.1-5.8-5.1z"/>
+            </svg>
+          </div>
+          <h1 class="text-2xl font-extrabold tracking-tight text-white">PATITAS <span class="text-miu-amber">|</span> EL ALTO</h1>
+          <p class="text-xs text-stone-400 mt-0.5">Sistema de Adopción y Emprendimiento Social</p>
+
+          <!-- Mini resumen vivo en portal -->
+          <div class="grid grid-cols-2 gap-2 mt-3.5 text-left">
+            <div class="bg-miu-cardDark border border-white/10 rounded-2xl px-3 py-2">
+              <span class="text-[10px] text-stone-400 block">Fondo Fundación</span>
+              <span id="portal-fund-kpi" class="text-sm font-extrabold text-miu-emerald">Bs 1.480</span>
+            </div>
+            <div class="bg-miu-cardDark border border-white/10 rounded-2xl px-3 py-2">
+              <span class="text-[10px] text-stone-400 block">Ganancia Emprendimiento</span>
+              <span id="portal-profit-kpi" class="text-sm font-extrabold text-miu-amber">Bs 960</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 TARJETAS GRANDES ÁMBAR INTERACTIVAS -->
+        <div class="space-y-2.5">
+          <!-- Tarjeta 1 -->
+          <button onclick="enterAppView('map')" class="w-full bg-miu-amber hover:bg-miu-amberHover active:scale-[0.98] text-miu-dark rounded-2xl p-3.5 text-left transition-all shadow-md flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-miu-dark/10 flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5 text-miu-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+              </div>
+              <div>
+                <div class="font-extrabold text-[15px] leading-tight">Mapa y Refugios en Vivo</div>
+                <div class="text-xs font-medium text-miu-dark/80 mt-0.5">3 zonas activas y ruta de entrega</div>
+              </div>
+            </div>
+            <svg class="w-5 h-5 text-miu-dark/70 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+
+          <!-- Tarjeta 2 -->
+          <button onclick="enterAppView('dogs')" class="w-full bg-miu-amber hover:bg-miu-amberHover active:scale-[0.98] text-miu-dark rounded-2xl p-3.5 text-left transition-all shadow-md flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-miu-dark/10 flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5 text-miu-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              </div>
+              <div>
+                <div class="font-extrabold text-[15px] leading-tight">Catálogo y Biografías</div>
+                <div id="portal-dogs-sub" class="text-xs font-medium text-miu-dark/80 mt-0.5">5 perritos rescatados · Agenda paseos</div>
+              </div>
+            </div>
+            <svg class="w-5 h-5 text-miu-dark/70 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+
+          <!-- Tarjeta 3 -->
+          <button onclick="enterAppView('store')" class="w-full bg-miu-amber hover:bg-miu-amberHover active:scale-[0.98] text-miu-dark rounded-2xl p-3.5 text-left transition-all shadow-md flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-miu-dark/10 flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5 text-miu-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              </div>
+              <div>
+                <div class="font-extrabold text-[15px] leading-tight">Tienda Solidaria y Ganancia</div>
+                <div class="text-xs font-medium text-miu-dark/80 mt-0.5">Utilidad neta emprendedor + % Fundación</div>
+              </div>
+            </div>
+            <svg class="w-5 h-5 text-miu-dark/70 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+
+          <!-- Tarjeta 4 -->
+          <button onclick="enterAppView('qr')" class="w-full bg-miu-amber hover:bg-miu-amberHover active:scale-[0.98] text-miu-dark rounded-2xl p-3.5 text-left transition-all shadow-md flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-miu-dark/10 flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5 text-miu-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><path d="M3 14h7v7H3z"/></svg>
+              </div>
+              <div>
+                <div class="font-extrabold text-[15px] leading-tight">Pase QR y Donación Láser</div>
+                <div class="text-xs font-medium text-miu-dark/80 mt-0.5">Escaneo instantáneo y token dinámico</div>
+              </div>
+            </div>
+            <svg class="w-5 h-5 text-miu-dark/70 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+
+          <!-- Tarjeta 5 -->
+          <button onclick="enterAppView('panel')" class="w-full bg-miu-amber hover:bg-miu-amberHover active:scale-[0.98] text-miu-dark rounded-2xl p-3.5 text-left transition-all shadow-md flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-miu-dark/15 flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5 text-miu-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              </div>
+              <div>
+                <div class="font-extrabold text-[15px] leading-tight">Panel Financiero y Control</div>
+                <div class="text-xs font-semibold text-miu-dark/85 mt-0.5">Métricas animadas, registros y alta de perros</div>
+              </div>
+            </div>
+            <svg class="w-5 h-5 text-miu-dark/70 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+
+          <!-- Tarjeta 6: Instalar / Desinstalar Icono Real PWA -->
+          <button onclick="enterAppView('install')" class="w-full bg-miu-cardDark hover:bg-zinc-900 active:scale-[0.98] text-pink-100 border border-pink-500/35 rounded-2xl p-3.5 text-left transition-all shadow-md flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-miu-amber flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </div>
+              <div>
+                <div class="font-extrabold text-[14px] leading-tight text-white flex items-center gap-2">
+                  <span>Instalar / Desinstalar Icono App</span>
+                  <span class="px-2 py-0.5 rounded-full bg-pink-500/25 text-pink-300 text-[9px] font-extrabold">PWA</span>
+                </div>
+                <div class="text-xs text-pink-200/75 mt-0.5">Añadir a pantalla de inicio o quitar del equipo</div>
+              </div>
+            </div>
+            <svg class="w-5 h-5 text-miu-amber group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <p class="text-center text-[11px] text-pink-200/50 mt-4">Prototipo Patitas El Alto · Alianza Refugios La Paz</p>
+    </div>
+
+    <!-- ======================================================================= -->
+      <!-- HEADER OPERATIVO CLARO ESTILO MIU CON ACENTO ROSA CREMA -->
+      <header class="bg-white border-b border-pink-200/80 px-4 py-3 flex items-center justify-between shrink-0 z-20">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <button onclick="openPortalScreen()" title="Volver al Portal" class="w-9 h-9 rounded-xl bg-miu-amber text-white font-extrabold text-sm flex items-center justify-center shadow-xs hover:scale-105 transition shrink-0">
+            P
+          </button>
+          <div class="min-w-0">
+            <span class="block text-[10px] font-bold uppercase tracking-wider text-miu-muted">PATITAS | EL ALTO</span>
+            <h2 id="main-header-title" class="text-[15px] font-extrabold text-miu-ink truncate">Mapa y Refugios en Vivo</h2>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5 shrink-0">
+          <!-- Botón Acceso Rápido Instalar/Desinstalar Icono PWA -->
+          <button onclick="enterAppView('install')" title="Instalar o Desinstalar Icono" class="px-2.5 py-1.5 rounded-xl bg-miu-light hover:bg-miu-cream border border-pink-300/80 text-miu-ink text-[10px] font-extrabold flex items-center gap-1 transition">
+            <svg class="w-3.5 h-3.5 text-miu-amber" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span id="top-install-pill">Icono</span>
+          </button>
+          <!-- Pill rápida Fondo / Ganancia -->
+          <button onclick="enterAppView('panel')" class="px-2.5 py-1 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-extrabold flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-miu-emerald animate-pulse"></span>
+            <span id="top-pill-fund">Bs 1.480</span>
+          </button>
+          <!-- Botón Registrar Perrito -->
+          <button onclick="openNewDogModal()" title="Registrar Nuevo Perrito" class="w-9 h-9 rounded-xl bg-miu-dark text-miu-amber flex items-center justify-center hover:bg-zinc-800 transition">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- ÁREA DE SCROLL DE LAS VISTAS OPERATIVAS -->
+      <main id="operative-scroll" class="flex-1 overflow-y-auto no-scrollbar px-4 pt-3.5 pb-24 space-y-4">
+
+        <!-- =================================================================== -->
+        <!-- VISTA A: MAPA INTERACTIVO EN VIVO Y PUNTOS DE RESCATE               -->
+        <!-- =================================================================== -->
+        <section id="view-map" class="view-animate space-y-3.5">
+          <!-- Selector Horizontal de Zonas / Refugios -->
+          <div class="flex gap-2 overflow-x-auto no-scrollbar pb-0.5" id="zone-pills-container">
+            <!-- Renderizado dinámico JS -->
+          </div>
+
+          <!-- Lienzo de Mapa Interactivo Vectorial El Alto / La Paz -->
+          <div class="bg-white rounded-3xl p-2.5 shadow-card-soft border border-stone-200/70 relative overflow-hidden">
+            <div class="w-full h-[250px] rounded-2xl bg-[#EAE8E1] relative overflow-hidden border border-stone-200">
+              <!-- Etiqueta superior derecha de calle -->
+              <div class="absolute top-2.5 right-2.5 z-10 bg-miu-dark/90 text-white px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1.5 shadow">
+                <span class="w-2 h-2 rounded-full bg-miu-amber"></span>
+                <span id="map-street-badge">Av. Satélite / Calle 4</span>
+              </div>
+
+              <!-- Etiqueta flotante ETA -->
+              <div class="absolute top-12 left-1/2 -translate-x-1/2 z-10 bg-miu-dark text-white px-3 py-1 rounded-full text-[11px] font-bold shadow-lg flex items-center gap-1.5 whitespace-nowrap">
+                <span class="w-2 h-2 rounded-full bg-miu-emerald animate-ping"></span>
+                <span id="map-eta-badge">Entrega alimento en camino (6 min)</span>
+              </div>
+
+              <!-- SVG Mapa Estilizado de El Alto y La Paz -->
+              <svg id="interactive-city-map" viewBox="0 0 380 250" class="w-full h-full">
+                <!-- Zonas verdes / parques -->
+                <polygon points="15,20 95,15 80,65 10,60" fill="#DCE8D5"/>
+                <polygon points="270,150 365,140 370,220 280,225" fill="#DCE8D5"/>
+                <!-- Manzanero urbano sutil -->
+                <g stroke="#DFDDD4" stroke-width="1.5">
+                  <line x1="0" y1="50" x2="380" y2="50"/><line x1="0" y1="100" x2="380" y2="100"/>
+                  <line x1="0" y1="150" x2="380" y2="150"/><line x1="0" y1="200" x2="380" y2="200"/>
+                  <line x1="75" y1="0" x2="75" y2="250"/><line x1="155" y1="0" x2="155" y2="250"/>
+                  <line x1="235" y1="0" x2="235" y2="250"/><line x1="315" y1="0" x2="315" y2="250"/>
+                </g>
+                <!-- Avenidas principales -->
+                <path d="M 10 215 Q 130 165 210 120 T 365 35" stroke="#FFFFFF" stroke-width="11" fill="none" stroke-linecap="round"/>
+                <path d="M 35 25 L 185 235" stroke="#FFFFFF" stroke-width="8" fill="none" stroke-linecap="round"/>
+                <path d="M 190 15 Q 250 110 345 190" stroke="#FFFFFF" stroke-width="7" fill="none" stroke-linecap="round"/>
+
+                <!-- Nombres de Zonas Reales -->
+                <text x="165" y="102" font-size="11" font-weight="800" fill="#4B5563" font-family="Plus Jakarta Sans">El Alto</text>
+                <text x="295" y="112" font-size="11" font-weight="800" fill="#4B5563" font-family="Plus Jakarta Sans">La Paz</text>
+                <text x="48" y="195" font-size="8.5" font-weight="700" fill="#6B7280">VILLA ADELA</text>
+                <text x="275" y="175" font-size="8.5" font-weight="700" fill="#6B7280">SOPOCACHI</text>
+
+                <!-- Ruta animada entre punto de acopio y refugio seleccionado -->
+                <path id="map-active-route" d="M 65 190 Q 145 150 205 122" stroke="#14171F" stroke-width="5" fill="none" stroke-linecap="round"/>
+                <path id="map-active-route-flow" d="M 65 190 Q 145 150 205 122" stroke="#F5B800" stroke-width="3.5" fill="none" stroke-linecap="round" class="route-flow"/>
+
+                <!-- Marcadores clicables de las 3 Zonas -->
+                <g onclick="selectMapZone(0)" class="cursor-pointer">
+                  <circle cx="205" cy="122" r="18" fill="#F5B800" class="map-ping"/>
+                  <circle cx="205" cy="122" r="14" fill="#F5B800" stroke="#14171F" stroke-width="2.5"/>
+                  <text x="205" y="126" text-anchor="middle" font-size="11" font-weight="800" fill="#14171F">01</text>
+                </g>
+
+                <g onclick="selectMapZone(1)" class="cursor-pointer">
+                  <circle cx="65" cy="190" r="14" fill="#14171F" stroke="#F5B800" stroke-width="2.5"/>
+                  <text x="65" y="194" text-anchor="middle" font-size="10" font-weight="800" fill="#F5B800">02</text>
+                </g>
+
+                <g onclick="selectMapZone(2)" class="cursor-pointer">
+                  <circle cx="315" cy="62" r="14" fill="#14171F" stroke="#10B981" stroke-width="2.5"/>
+                  <text x="315" y="66" text-anchor="middle" font-size="10" font-weight="800" fill="#10B981">03</text>
+                </g>
+              </svg>
+
+              <!-- Badges inferiores del mapa -->
+              <div class="absolute bottom-2.5 left-2.5 bg-white/95 px-2.5 py-1 rounded-full text-[10px] font-bold text-miu-ink shadow flex items-center gap-1">
+                <span class="text-miu-amber">●</span>
+                <span id="map-campus-pill">Punto Acopio Satélite</span>
+              </div>
+              <div class="absolute bottom-2.5 right-2.5 bg-miu-dark/90 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow">
+                <span id="map-kilos-pill">45 kg en ruta</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tarjeta del Perrito Destacado / Encargado de Zona (Estilo Don Mario Condori) -->
+          <div class="bg-white rounded-3xl p-4 shadow-card-soft border border-stone-100 space-y-3">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <img id="zone-dog-img" src="" alt="Perrito zona" class="w-14 h-14 rounded-full object-cover border-2 border-miu-amber shrink-0 bg-amber-100" />
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5">
+                    <h3 id="zone-dog-name" class="font-extrabold text-base text-miu-ink truncate">Toby</h3>
+                    <span class="w-4 h-4 rounded-full bg-miu-amber text-miu-dark text-[10px] font-extrabold flex items-center justify-center">✓</span>
+                  </div>
+                  <div class="flex items-center gap-1.5 mt-1">
+                    <span id="zone-code-badge" class="px-2.5 py-0.5 rounded-full bg-miu-dark text-miu-amber text-[10px] font-extrabold">Zona Z-01</span>
+                    <span id="zone-breed-text" class="text-[11px] font-medium text-miu-muted truncate">Mestizo · 2 años</span>
+                  </div>
+                </div>
+              </div>
+              <div class="text-right shrink-0">
+                <span class="block text-[9px] font-bold uppercase text-miu-muted">VISITA EST.</span>
+                <span id="zone-eta-clock" class="text-lg font-extrabold text-amber-600">12:45</span>
+              </div>
+            </div>
+
+            <!-- 3 Mini KPIs de la zona -->
+            <div class="grid grid-cols-3 gap-2 pt-1">
+              <div class="bg-miu-light rounded-2xl p-2.5 text-center">
+                <span class="block text-[9px] font-bold uppercase text-miu-muted">CUPOS PASEO</span>
+                <span id="zone-slots-text" class="text-xs font-extrabold text-miu-ink mt-0.5 block">5 libres</span>
+              </div>
+              <div class="bg-miu-light rounded-2xl p-2.5 text-center">
+                <span class="block text-[9px] font-bold uppercase text-miu-muted">ADOPCIÓN</span>
+                <span class="text-xs font-extrabold text-miu-emerald mt-0.5 block">100% Gratis</span>
+              </div>
+              <div class="bg-miu-light rounded-2xl p-2.5 text-center">
+                <span class="block text-[9px] font-bold uppercase text-miu-muted">VACUNAS</span>
+                <span class="text-xs font-extrabold text-miu-ink mt-0.5 block">Al día</span>
+              </div>
+            </div>
+
+            <div class="flex gap-2">
+              <button id="zone-action-btn" onclick="openDogDetailByZone()" class="flex-1 bg-miu-amber hover:bg-miu-amberHover text-miu-dark font-extrabold text-xs py-3 rounded-2xl transition shadow-xs">
+                Ver Biografía y Agendar Visita
+              </button>
+              <button onclick="enterAppView('qr')" class="px-3.5 py-3 rounded-2xl bg-miu-light hover:bg-stone-200 text-red-600 font-extrabold text-xs transition">
+                SOS
+              </button>
+            </div>
+          </div>
+
+          <!-- Línea de Tiempo Vertical ("Puntos Clave del Rescate") -->
+          <div class="bg-white rounded-3xl p-4 shadow-card-soft border border-stone-100 space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="font-extrabold text-sm text-miu-ink">Puntos Clave del Rescate</h4>
+              <span id="timeline-zone-tag" class="px-2.5 py-0.5 rounded-full bg-miu-amber text-miu-dark text-[10px] font-extrabold">Z-01</span>
+            </div>
+
+            <div class="space-y-3 pl-2 border-l-2 border-stone-200 ml-2">
+              <div class="relative pl-4">
+                <span class="w-3 h-3 rounded-full bg-stone-300 absolute -left-[23px] top-1"></span>
+                <div class="flex justify-between text-xs font-bold text-miu-ink">
+                  <span>Rescate en Vía Pública</span>
+                  <span class="text-[10px] text-miu-muted">Completado</span>
+                </div>
+                <p class="text-[11px] text-miu-muted">Evaluación inicial y traslado seguro al refugio.</p>
+              </div>
+
+              <div class="relative pl-4">
+                <span class="w-3 h-3 rounded-full bg-stone-300 absolute -left-[23px] top-1"></span>
+                <div class="flex justify-between text-xs font-bold text-miu-ink">
+                  <span>Desparasitación y Vacuna Séxtuple</span>
+                  <span class="text-[10px] text-miu-muted">Completado</span>
+                </div>
+                <p class="text-[11px] text-miu-muted">Atención en veterinaria aliada con fondo de tienda.</p>
+              </div>
+
+              <div class="relative pl-4">
+                <span class="w-3.5 h-3.5 rounded-full bg-miu-amber ring-4 ring-amber-100 absolute -left-[24px] top-1"></span>
+                <div class="flex justify-between text-xs font-extrabold text-miu-ink">
+                  <span id="timeline-current-step">En Refugio Ciudad Satélite</span>
+                  <span class="px-2 py-0.5 rounded-full bg-miu-amber text-miu-dark text-[9px] font-extrabold">Actual</span>
+                </div>
+                <p class="text-[11px] text-amber-700 font-medium">Disponible para visitas, apadrinamiento o adopción.</p>
+              </div>
+
+              <div class="relative pl-4">
+                <span class="w-3 h-3 rounded-full bg-miu-dark absolute -left-[23px] top-1"></span>
+                <div class="flex justify-between text-xs font-bold text-miu-ink">
+                  <span>Hogar Definitivo y Seguimiento</span>
+                  <span class="text-[10px] text-miu-muted">Meta Final</span>
+                </div>
+                <p class="text-[11px] text-miu-muted">Entrega con placa QR de identificación incluida.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- =================================================================== -->
+        <!-- VISTA B: CATÁLOGO DIDÁCTICO DE PERRITOS, BIOGRAFÍA Y VISITAS         -->
+        <!-- =================================================================== -->
+        <section id="view-dogs" class="hidden view-animate space-y-3.5">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-extrabold text-miu-ink">Perritos en Adopción</h3>
+              <p class="text-xs text-miu-muted">Toca cualquier ficha para ver historia, mapa o agendar paseo</p>
+            </div>
+            <button onclick="openNewDogModal()" class="px-3 py-1.5 rounded-xl bg-miu-dark text-miu-amber text-xs font-bold flex items-center gap-1 shadow-xs">
+              <span>+ Subir</span>
+            </button>
+          </div>
+
+          <!-- Filtros -->
+          <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+            <button onclick="setDogsCategory('todos')" data-cat="todos" class="cat-btn px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-miu-dark text-miu-amber transition shrink-0">Todos (5)</button>
+            <button onclick="setDogsCategory('Urgente')" data-cat="Urgente" class="cat-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-miu-ink border border-stone-200 transition shrink-0">Caso Urgente</button>
+            <button onclick="setDogsCategory('Cachorro')" data-cat="Cachorro" class="cat-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-miu-ink border border-stone-200 transition shrink-0">Cachorros</button>
+            <button onclick="setDogsCategory('Apadrinable')" data-cat="Apadrinable" class="cat-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-miu-ink border border-stone-200 transition shrink-0">Apadrinables</button>
+          </div>
+
+          <!-- Lista de Tarjetas -->
+          <div id="dogs-cards-container" class="space-y-3.5">
+            <!-- Renderizado dinámico JS -->
+          </div>
+        </section>
+
+
+        <!-- =================================================================== -->
+        <!-- VISTA C: TIENDA SOLIDARIA + SIMULADOR DE GANANCIA Y DONACIÓN        -->
+        <!-- =================================================================== -->
+        <section id="view-store" class="hidden view-animate space-y-4">
+          <!-- Banner Explicativo de Rentabilidad -->
+          <div class="bg-miu-dark text-white rounded-3xl p-4 shadow-lg space-y-3">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <span class="px-2 py-0.5 rounded-md bg-miu-amber text-miu-dark text-[10px] font-extrabold uppercase">Modelo Ganar-Ganar</span>
+                <h3 class="text-base font-extrabold mt-1">Tienda Solidaria Patitas</h3>
+                <p class="text-[11px] text-stone-300 mt-0.5">Cada compra cubre insumos, deja <strong class="text-miu-amber">utilidad neta</strong> a tu emprendimiento y transfiere <strong class="text-miu-emerald">donación directa</strong> al refugio.</p>
+              </div>
+              <button onclick="openCartDrawer()" class="relative px-3 py-2 rounded-2xl bg-miu-amber text-miu-dark font-extrabold text-xs shrink-0">
+                Carrito (<span id="store-cart-count">1</span>)
+              </button>
+            </div>
+
+            <!-- Simulador Deslizante de Proyección Mensual -->
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-stone-300 font-medium">Simulador ventas/mes:</span>
+                <span id="sim-units-label" class="font-extrabold text-miu-amber">40 ventas</span>
+              </div>
+              <input type="range" min="10" max="200" step="5" value="40" oninput="updateSalesSimulator(this.value)" class="w-full accent-miu-amber cursor-pointer" />
+              <div class="grid grid-cols-2 gap-2 pt-1 text-center">
+                <div class="bg-black/30 rounded-xl p-2">
+                  <span class="block text-[10px] text-stone-400">Tu Ganancia Neta/Mes</span>
+                  <span id="sim-profit-result" class="text-sm font-extrabold text-miu-amber">Bs 640</span>
+                </div>
+                <div class="bg-black/30 rounded-xl p-2">
+                  <span class="block text-[10px] text-stone-400">Donado a Fundación/Mes</span>
+                  <span id="sim-fund-result" class="text-sm font-extrabold text-miu-emerald">Bs 320</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lista de Productos -->
+          <div id="store-items-grid" class="space-y-3">
+            <!-- Renderizado dinámico JS -->
+          </div>
+        </section>
+
+
+        <!-- =================================================================== -->
+        <!-- VISTA D: PASE QR DINÁMICO CON ESCANEO LÁSER Y PANEL DE CONTROL      -->
+        <!-- =================================================================== -->
+        <section id="view-qr-panel" class="hidden view-animate space-y-4">
+          <!-- Switcher superior entre Pase QR Láser y Panel Control -->
+          <div class="bg-stone-200/80 p-1 rounded-2xl grid grid-cols-2 gap-1">
+            <button id="tab-sub-qr" onclick="switchQrOrPanel('qr')" class="py-2 rounded-xl text-xs font-extrabold bg-white text-miu-ink shadow-xs transition">
+              Pase QR & Escaneo Láser
+            </button>
+            <button id="tab-sub-panel" onclick="switchQrOrPanel('panel')" class="py-2 rounded-xl text-xs font-bold text-miu-muted transition">
+              Panel Financiero en Vivo
+            </button>
+          </div>
+
+          <!-- SUBVISTA 1: PASE QR DINÁMICO ESTILO PASE DE ABORDAJE MIU -->
+          <div id="subview-qr" class="space-y-3.5">
+            <!-- Selector de monto -->
+            <div class="bg-white rounded-3xl p-4 shadow-card-soft border border-stone-100 space-y-2.5">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-extrabold text-miu-ink">Selecciona aporte o apadrinamiento</span>
+                <span class="text-[10px] font-bold text-miu-emerald bg-emerald-50 px-2 py-0.5 rounded-full">100% Verificado</span>
+              </div>
+              <div class="grid grid-cols-4 gap-2">
+                <button onclick="setQrAmount(10)" class="qr-amt-btn py-2 rounded-xl border border-stone-200 bg-miu-light text-xs font-extrabold text-miu-ink">Bs 10</button>
+                <button onclick="setQrAmount(25)" class="qr-amt-btn py-2 rounded-xl border-2 border-miu-amber bg-amber-50 text-xs font-extrabold text-miu-ink">Bs 25</button>
+                <button onclick="setQrAmount(50)" class="qr-amt-btn py-2 rounded-xl border border-stone-200 bg-miu-light text-xs font-extrabold text-miu-ink">Bs 50</button>
+                <button onclick="setQrAmount(100)" class="qr-amt-btn py-2 rounded-xl border border-stone-200 bg-miu-light text-xs font-extrabold text-miu-ink">Bs 100</button>
+              </div>
+            </div>
+
+            <!-- Tarjeta Pase QR con Escáner Láser Animado -->
+            <div class="bg-white rounded-3xl p-5 shadow-card-soft border border-stone-200/80 text-center space-y-3 relative overflow-hidden">
+              <div class="flex items-center justify-between text-[11px] font-bold text-miu-muted">
+                <span>PASE SOLIDARIO DIGITAL</span>
+                <span id="qr-amount-badge" class="px-2.5 py-0.5 rounded-full bg-miu-dark text-miu-amber font-extrabold">Bs 25.00</span>
+              </div>
+
+              <!-- Contenedor QR con Haz Láser -->
+              <div class="relative w-48 h-48 mx-auto bg-white p-3 rounded-2xl border-2 border-miu-ink shadow-inner flex items-center justify-center overflow-hidden">
+                <div id="qr-laser-line" class="qr-laser-beam"></div>
+                <svg viewBox="0 0 120 120" class="w-full h-full">
+                  <rect x="6" y="6" width="30" height="30" rx="4" stroke="#14171F" stroke-width="6" fill="none"/>
+                  <rect x="15" y="15" width="12" height="12" rx="2" fill="#14171F"/>
+                  <rect x="84" y="6" width="30" height="30" rx="4" stroke="#14171F" stroke-width="6" fill="none"/>
+                  <rect x="93" y="15" width="12" height="12" rx="2" fill="#14171F"/>
+                  <rect x="6" y="84" width="30" height="30" rx="4" stroke="#14171F" stroke-width="6" fill="none"/>
+                  <rect x="15" y="93" width="12" height="12" rx="2" fill="#14171F"/>
+                  <g fill="#14171F">
+                    <rect x="44" y="8" width="6" height="12"/><rect x="56" y="8" width="12" height="6"/><rect x="72" y="14" width="6" height="12"/>
+                    <rect x="44" y="26" width="14" height="6"/><rect x="64" y="26" width="12" height="6"/>
+                    <rect x="8" y="44" width="12" height="6"/><rect x="26" y="44" width="10" height="12"/><rect x="86" y="44" width="12" height="6"/><rect x="104" y="44" width="10" height="12"/>
+                    <rect x="8" y="62" width="16" height="6"/><rect x="86" y="62" width="10" height="12"/><rect x="102" y="68" width="12" height="6"/>
+                    <rect x="44" y="84" width="6" height="14"/><rect x="56" y="84" width="18" height="6"/><rect x="56" y="96" width="6" height="18"/><rect x="68" y="98" width="14" height="6"/><rect x="90" y="88" width="12" height="12"/><rect x="106" y="102" width="8" height="12"/>
+                  </g>
+                  <!-- Centro emblema PAT -->
+                  <rect x="42" y="42" width="36" height="36" rx="9" fill="#F5B800"/>
+                  <text x="60" y="64" text-anchor="middle" font-size="11" font-weight="900" fill="#14171F" font-family="Plus Jakarta Sans">PAT</text>
+                </svg>
+              </div>
+
+              <!-- Token Dinámico -->
+              <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-miu-light border border-stone-200 text-[11px] font-mono font-bold text-miu-ink">
+                <span class="w-2 h-2 rounded-full bg-miu-emerald animate-ping"></span>
+                <span id="qr-dynamic-token">TOKEN: #PAT-8492-ACTIVO</span>
+              </div>
+
+              <div class="flex items-center justify-center gap-2 pt-1">
+                <span class="text-[11px] font-semibold text-miu-emerald flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  Láser activo
+                </span>
+                <button onclick="triggerLaserScanSimulation()" class="px-4 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-extrabold text-xs transition flex items-center gap-1.5">
+                  <span>Simular Escaneo Láser</span>
+                </button>
+              </div>
+
+              <button onclick="triggerLaserScanSimulation()" class="w-full bg-miu-amber hover:bg-miu-amberHover text-miu-dark font-extrabold text-xs py-3.5 rounded-2xl transition shadow-amber-glow">
+                Acreditar Donación Ahora y Ver en Panel
+              </button>
+            </div>
+          </div>
+
+          <!-- SUBVISTA 2: PANEL DE CONTROL FINANCIERO (ESTILO MIU INICIO / PANEL) -->
+          <div id="subview-panel" class="hidden space-y-3.5">
+            <!-- Tarjeta oscura superior -->
+            <div class="bg-miu-dark text-white rounded-2xl px-4 py-3 flex items-center justify-between">
+              <div>
+                <span class="text-[10px] font-bold uppercase text-miu-amber block">PROYECTO SOCIAL & EMPRENDIMIENTO</span>
+                <span class="text-sm font-extrabold">Balance General Noviembre</span>
+              </div>
+              <span class="px-2.5 py-1 rounded-full bg-white/10 text-[11px] font-bold">Auditado</span>
+            </div>
+
+            <!-- Anillo de Progreso Circular + Desglose -->
+            <div class="bg-white rounded-3xl p-4 shadow-card-soft border border-stone-100 space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="font-extrabold text-base text-miu-ink">Meta Mensual Refugio</h4>
+                  <p class="text-[11px] text-miu-muted">Objetivo: Bs 2.000 en alimento y cirugías</p>
+                </div>
+                <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-miu-emerald text-[10px] font-extrabold">En Línea</span>
+              </div>
+
+              <div class="flex items-center justify-around py-1">
+                <!-- SVG Ring -->
+                <div class="relative w-28 h-28 flex items-center justify-center">
+                  <svg class="w-28 h-28" viewBox="0 0 110 110">
+                    <circle cx="55" cy="55" r="44" stroke="#F3F4F6" stroke-width="11" fill="none"/>
+                    <circle id="panel-ring-circle" class="ring-circle" cx="55" cy="55" r="44" stroke="#F5B800" stroke-width="11" stroke-linecap="round" fill="none" stroke-dasharray="276.46" stroke-dashoffset="72"/>
+                  </svg>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span id="panel-ring-pct" class="text-2xl font-extrabold text-miu-ink">74%</span>
+                    <span class="text-[10px] font-semibold text-miu-muted">Completado</span>
+                  </div>
+                </div>
+
+                <!-- Leyenda lateral -->
+                <div class="space-y-2">
+                  <div class="bg-miu-light rounded-2xl px-3.5 py-2">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full bg-miu-emerald"></span>
+                      <span id="panel-fund-val" class="font-extrabold text-sm text-miu-ink">Bs 1.480</span>
+                    </div>
+                    <span class="text-[10px] text-miu-muted block pl-4">Fondo Fundación</span>
+                  </div>
+                  <div class="bg-amber-50/80 rounded-2xl px-3.5 py-2 border border-amber-200/60">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full bg-miu-amber"></span>
+                      <span id="panel-profit-val" class="font-extrabold text-sm text-miu-ink">Bs 960</span>
+                    </div>
+                    <span class="text-[10px] text-amber-900 font-semibold block pl-4">Tu Ganancia Neta</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3 Tarjetas KPI -->
+            <div class="grid grid-cols-3 gap-2.5">
+              <div class="bg-white rounded-2xl p-3 shadow-card-soft border border-stone-100 text-center">
+                <span id="kpi-dogs-helped" class="block text-lg font-extrabold text-miu-ink">14</span>
+                <span class="block text-[10px] text-miu-muted">Rescatados</span>
+              </div>
+              <div class="bg-white rounded-2xl p-3 shadow-card-soft border border-stone-100 text-center">
+                <span id="kpi-kilos" class="block text-lg font-extrabold text-miu-emerald">185 kg</span>
+                <span class="block text-[10px] text-miu-muted">Alimento</span>
+              </div>
+              <div class="bg-white rounded-2xl p-3 shadow-card-soft border border-stone-100 text-center">
+                <span id="kpi-tx-count" class="block text-lg font-extrabold text-amber-600">42</span>
+                <span class="block text-[10px] text-miu-muted">Aportes</span>
+              </div>
+            </div>
+
+            <!-- Lista de Movimientos en Tiempo Real (Estilo Pasajeros a Bordo) -->
+            <div class="bg-white rounded-3xl p-4 shadow-card-soft border border-stone-100 space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="font-extrabold text-sm text-miu-ink">Movimientos en Tiempo Real</h4>
+                <span id="live-tx-badge" class="px-2 py-0.5 rounded-full bg-miu-light text-[10px] font-bold text-miu-muted">Actualizado</span>
+              </div>
+              <div id="live-ledger-list" class="space-y-2.5">
+                <!-- Renderizado dinámico JS -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =================================================================== -->
+        <!-- VISTA E: GESTOR DE ICONO REAL PWA (INSTALAR Y DESINSTALAR)          -->
+        <!-- =================================================================== -->
+        <section id="view-install" class="hidden view-animate space-y-4">
+          <!-- Tarjeta Principal de Estado del Icono PWA -->
+          <div class="bg-miu-dark text-white rounded-3xl p-4 shadow-lg border border-pink-500/25 space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-miu-amber text-white flex items-center justify-center shadow-amber-glow shrink-0">
+                  <svg class="w-7 h-7" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="6.5" cy="9.5" r="2.2"/><circle cx="10.2" cy="6.2" r="2.2"/><circle cx="14.8" cy="6.2" r="2.2"/><circle cx="18.2" cy="9.5" r="2.2"/>
+                    <path d="M12 11.5c-3.2 0-5.8 2.3-5.8 5.1 0 1.8 1.4 3.1 3.1 3.1 1 0 1.8-.4 2.7-.4s1.7.4 2.7.4c1.7 0 3.1-1.3 3.1-3.1 0-2.8-2.6-5.1-5.8-5.1z"/>
+                  </svg>
+                </div>
+                <div>
+                  <span class="px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 text-[10px] font-extrabold">ICONO EN PANTALLA</span>
+                  <h3 class="text-base font-extrabold mt-0.5">Patitas El Alto · PWA</h3>
+                </div>
+              </div>
+              <span id="pwa-status-badge" class="px-2.5 py-1 rounded-full bg-miu-light text-miu-ink text-[10px] font-extrabold">Modo Web</span>
+            </div>
+
+            <p class="text-xs text-pink-100/80 leading-relaxed">
+              Esta app incluye un <strong>Manifest PWA dinámico</strong> y un <strong>Service Worker virtual</strong> para comportarse como app instalada con su propio icono en el teléfono o escritorio, sin barra del navegador.
+            </p>
+
+            <!-- Botón de Instalación Real o Simulador Guiado -->
+            <button id="btn-install-pwa-action" onclick="handleInstallPwaClick()" class="w-full bg-miu-amber hover:bg-miu-amberHover active:scale-[0.98] text-white font-extrabold text-xs py-3.5 rounded-2xl shadow-amber-glow transition flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span id="btn-install-pwa-text">Instalar Icono de App Ahora</span>
+            </button>
+
+            <div id="pwa-install-feedback" class="hidden bg-pink-500/15 border border-pink-400/30 rounded-2xl p-3 text-[11px] text-pink-100 leading-relaxed"></div>
+          </div>
+
+          <!-- Pestañas de Guía: Cómo Instalar vs Cómo Desinstalar -->
+          <div class="bg-white rounded-3xl p-4 shadow-card-soft border border-pink-200/70 space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="font-extrabold text-sm text-miu-ink">Guía Práctica: Instalar y Quitar</h4>
+              <div class="flex gap-1 bg-miu-light p-1 rounded-xl">
+                <button id="guide-tab-install" onclick="switchGuideTab('install')" class="px-2.5 py-1 rounded-lg bg-miu-dark text-white text-[10px] font-extrabold">Instalar</button>
+                <button id="guide-tab-uninstall" onclick="switchGuideTab('uninstall')" class="px-2.5 py-1 rounded-lg text-miu-muted text-[10px] font-bold">Desinstalar</button>
+              </div>
+            </div>
+
+            <!-- Pasos de Instalación -->
+            <div id="guide-content-install" class="space-y-2.5 text-xs">
+              <div class="bg-miu-light rounded-2xl p-3 border border-pink-200/60">
+                <div class="font-extrabold text-miu-ink flex items-center gap-1.5">
+                  <span class="w-5 h-5 rounded-full bg-miu-amber text-white text-[10px] flex items-center justify-center font-extrabold">1</span>
+                  <span>Android · Google Chrome</span>
+                </div>
+                <p class="text-[11px] text-miu-muted mt-1 leading-relaxed">
+                  Abre la página en Chrome, toca los <strong>tres puntos (⋮)</strong> arriba a la derecha y selecciona <strong>"Instalar aplicación"</strong> o <strong>"Agregar a la pantalla principal"</strong>.
+                </p>
+              </div>
+
+              <div class="bg-miu-light rounded-2xl p-3 border border-pink-200/60">
+                <div class="font-extrabold text-miu-ink flex items-center gap-1.5">
+                  <span class="w-5 h-5 rounded-full bg-miu-amber text-white text-[10px] flex items-center justify-center font-extrabold">2</span>
+                  <span>iPhone · Safari</span>
+                </div>
+                <p class="text-[11px] text-miu-muted mt-1 leading-relaxed">
+                  Toca el botón <strong>Compartir</strong> (cuadro con flecha hacia arriba) y elige <strong>"Agregar a inicio"</strong> para fijar el icono rosa de Patitas.
+                </p>
+              </div>
+
+              <div class="bg-miu-light rounded-2xl p-3 border border-pink-200/60">
+                <div class="font-extrabold text-miu-ink flex items-center gap-1.5">
+                  <span class="w-5 h-5 rounded-full bg-miu-amber text-white text-[10px] flex items-center justify-center font-extrabold">3</span>
+                  <span>PC o Laptop · Chrome / Edge</span>
+                </div>
+                <p class="text-[11px] text-miu-muted mt-1 leading-relaxed">
+                  En la barra de direcciones (o menú ⋮ &gt; <em>Transmitir, guardar y compartir</em> &gt; <em>Instalar página como app</em>) crea un acceso directo de ventana independiente.
+                </p>
+              </div>
+            </div>
+
+            <!-- Pasos de Desinstalación -->
+            <div id="guide-content-uninstall" class="hidden space-y-2.5 text-xs">
+              <div class="bg-miu-light rounded-2xl p-3 border border-pink-200/60">
+                <div class="font-extrabold text-miu-ink">📱 Desinstalar en Android</div>
+                <p class="text-[11px] text-miu-muted mt-1 leading-relaxed">
+                  Mantén presionado el icono <strong>Patitas App</strong> en tu pantalla de inicio o cajón de apps y toca <strong>"Desinstalar"</strong> o <strong>"Quitar"</strong>. También puedes ir a <em>Ajustes &gt; Aplicaciones &gt; Patitas El Alto &gt; Desinstalar</em>.
+                </p>
+              </div>
+
+              <div class="bg-miu-light rounded-2xl p-3 border border-pink-200/60">
+                <div class="font-extrabold text-miu-ink">💻 Desinstalar en PC (Chrome / Edge)</div>
+                <p class="text-[11px] text-miu-muted mt-1 leading-relaxed">
+                  Abre la app instalada, haz clic en los <strong>tres puntos (...)</strong> de su ventana superior derecha y elige <strong>"Desinstalar Patitas | El Alto"</strong> (o entra a <code>chrome://apps</code> y clic derecho &gt; <em>Quitar de Chrome</em>).
+                </p>
+              </div>
+
+              <div class="bg-miu-light rounded-2xl p-3 border border-pink-200/60">
+                <div class="font-extrabold text-miu-ink">🔄 Limpiar caché / Service Worker</div>
+                <p class="text-[11px] text-miu-muted mt-1 leading-relaxed">
+                  Si deseas forzar una actualización limpia desde cero, abre Herramientas de Desarrollador (F12) &gt; <em>Application</em> &gt; <em>Service Workers</em> &gt; <em>Unregister</em>.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- BARRA DE NAVEGACIÓN INFERIOR DE 5 ACCESOS -->
+      <nav class="bg-white border-t border-stone-200 px-1.5 py-2 grid grid-cols-5 gap-0.5 shrink-0 z-20">
+        <button onclick="openPortalScreen()" class="flex flex-col items-center justify-center py-1 text-miu-muted hover:text-miu-ink transition">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+          <span class="text-[10px] font-bold mt-0.5">Inicio</span>
+        </button>
+
+        <button onclick="enterAppView('map')" data-nav="map" class="bottom-nav-btn flex flex-col items-center justify-center py-1 text-amber-600 transition">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+          <span class="text-[10px] font-extrabold mt-0.5">Mapa</span>
+        </button>
+
+        <button onclick="enterAppView('dogs')" data-nav="dogs" class="bottom-nav-btn flex flex-col items-center justify-center py-1 text-miu-muted hover:text-miu-ink transition">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span class="text-[10px] font-bold mt-0.5">Perritos</span>
+        </button>
+
+        <button onclick="enterAppView('store')" data-nav="store" class="bottom-nav-btn flex flex-col items-center justify-center py-1 text-miu-muted hover:text-miu-ink transition">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="text-[10px] font-bold mt-0.5">Tienda</span>
+        </button>
+
+        <button onclick="enterAppView('panel')" data-nav="panel" class="bottom-nav-btn flex flex-col items-center justify-center py-1 text-miu-muted hover:text-miu-ink transition">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><path d="M3 14h7v7H3z"/></svg>
+          <span class="text-[10px] font-bold mt-0.5">Panel/QR</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- MODAL 1: FICHA COMPLETA PERRITO + CROQUIS DE CUPOS DE PASEO / ADOPCIÓN  -->
+    <!-- ======================================================================= -->
+    <div id="modal-dog-detail" class="hidden absolute inset-0 z-50 bg-black/65 backdrop-blur-xs flex items-end justify-center">
+      <div class="bg-white w-full max-h-[92%] rounded-t-3xl overflow-y-auto no-scrollbar p-5 space-y-4 shadow-2xl view-animate">
+        <div id="modal-dog-content"></div>
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- MODAL 2: CARRITO DE TIENDA SOLIDARIA                                    -->
+    <!-- ======================================================================= -->
+    <div id="modal-cart" class="hidden absolute inset-0 z-50 bg-black/65 backdrop-blur-xs flex items-end justify-center">
+      <div class="bg-white w-full max-h-[88%] rounded-t-3xl overflow-y-auto no-scrollbar p-5 space-y-4 shadow-2xl view-animate">
+        <div class="flex items-center justify-between border-b border-stone-100 pb-3">
+          <div>
+            <h3 class="text-base font-extrabold text-miu-ink">Carrito Tienda Solidaria</h3>
+            <p class="text-[11px] text-miu-muted">Cálculo automático de rentabilidad y donación</p>
+          </div>
+          <button onclick="closeCartDrawer()" class="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center font-bold text-miu-ink">✕</button>
+        </div>
+
+        <div id="cart-items-list" class="space-y-2.5"></div>
+
+        <div class="bg-miu-light rounded-2xl p-3.5 space-y-1.5 text-xs border border-stone-200/70">
+          <div class="flex justify-between text-miu-muted">
+            <span>Costo producción / aliado:</span>
+            <span id="cart-cost-txt" class="font-bold">Bs 0</span>
+          </div>
+          <div class="flex justify-between text-amber-700 font-bold">
+            <span>Tu Ganancia Neta (Emprendimiento):</span>
+            <span id="cart-profit-txt">+Bs 0</span>
+          </div>
+          <div class="flex justify-between text-miu-emerald font-bold">
+            <span>Donación directa a Fundación:</span>
+            <span id="cart-fund-txt">+Bs 0</span>
+          </div>
+          <div class="border-t border-stone-200 pt-2 flex justify-between text-sm font-extrabold text-miu-ink">
+            <span>Total a cobrar:</span>
+            <span id="cart-total-txt">Bs 0</span>
+          </div>
+        </div>
+
+        <button onclick="completeStorePurchase()" class="w-full bg-miu-amber hover:bg-miu-amberHover text-miu-dark font-extrabold text-xs py-3.5 rounded-2xl shadow-amber-glow transition">
+          Confirmar Venta QR y Acreditar al Panel
+        </button>
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- MODAL 3: REGISTRAR NUEVO PERRITO (MODO FUNDACIÓN / EXPOSICIÓN)          -->
+    <!-- ======================================================================= -->
+    <div id="modal-new-dog" class="hidden absolute inset-0 z-50 bg-black/65 backdrop-blur-xs flex items-end justify-center">
+      <div class="bg-white w-full max-h-[90%] rounded-t-3xl overflow-y-auto no-scrollbar p-5 space-y-3.5 shadow-2xl view-animate">
+        <div class="flex items-center justify-between border-b border-stone-100 pb-2.5">
+          <div>
+            <span class="text-[10px] font-extrabold uppercase text-amber-600">Panel Fundación</span>
+            <h3 class="text-base font-extrabold text-miu-ink">Registrar Nuevo Rescatado</h3>
+          </div>
+          <button onclick="closeNewDogModal()" class="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center font-bold">✕</button>
+        </div>
+
+        <form onsubmit="handleAddNewDog(event)" class="space-y-3 text-xs">
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block font-bold text-miu-ink mb-1">Nombre del perrito</label>
+              <input id="new-dog-name" required placeholder="Ej. Max" class="w-full bg-miu-light border border-stone-200 rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-miu-amber" />
+            </div>
+            <div>
+              <label class="block font-bold text-miu-ink mb-1">Edad / Tamaño</label>
+              <input id="new-dog-age" required placeholder="Ej. 1 año · Mediano" class="w-full bg-miu-light border border-stone-200 rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-miu-amber" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-bold text-miu-ink mb-1">Zona / Refugio de ubicación</label>
+            <select id="new-dog-zone" class="w-full bg-miu-light border border-stone-200 rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-miu-amber">
+              <option value="Refugio Ciudad Satélite · El Alto">Refugio Ciudad Satélite · El Alto</option>
+              <option value="Punto Villa Adela · El Alto">Punto Villa Adela · El Alto</option>
+              <option value="Hogar Temporal Sopocachi · La Paz">Hogar Temporal Sopocachi · La Paz</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-bold text-miu-ink mb-1">Biografía e historia del rescate</label>
+            <textarea id="new-dog-bio" rows="2" required placeholder="Cuenta cómo fue rescatado y su carácter..." class="w-full bg-miu-light border border-stone-200 rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-miu-amber"></textarea>
+          </div>
+
+          <button type="submit" class="w-full bg-miu-dark text-miu-amber font-extrabold py-3 rounded-2xl hover:bg-stone-800 transition">
+            Publicar en Catálogo Ahora
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- TOAST NOTIFICACIÓN ANIMADA -->
+    <div id="app-toast" class="hidden absolute top-14 left-4 right-4 z-50 bg-miu-dark text-white border border-miu-amber/40 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold view-animate">
+      <span class="w-2.5 h-2.5 rounded-full bg-miu-amber shrink-0"></span>
+      <span id="app-toast-text">Actualizado</span>
+    </div>
+
+  </div>
+
+  <script>
+    // =========================================================================
+    // ESTADO VIVO DE LA APLICACIÓN
+    // =========================================================================
+    const appState = {
+      fundTotal: 1480,
+      fundGoal: 2000,
+      entrepreneurProfit: 960,
+      kilosDelivered: 185,
+      txCount: 42,
+      selectedZoneIndex: 0,
+      selectedDogCategory: 'todos',
+      qrAmount: 25,
+      qrToken: '#PAT-8492-ACTIVO',
+      selectedWalkSlot: null,
+      cart: [
+        { id: 1, qty: 1 },
+        { id: 2, qty: 1 }
+      ],
+      ledger: [
+        { name: 'Valeria Condori Q.', role: 'Ing. Comercial · Satélite', detail: 'Placa QR + Aporte', badge: '+Bs 35', color: 'emerald' },
+        { name: 'Marco Antonio T.', role: 'Derecho · Sopocachi', detail: 'Apadrinamiento Toby', badge: '+Bs 50', color: 'amber' },
+        { name: 'Camila Valdivia', role: 'Medicina · Villa Adela', detail: 'Pack Galletas Nat.', badge: '+Bs 25', color: 'emerald' },
+        { name: 'Álvaro Apaza H.', role: 'Arquitectura · Río Seco', detail: 'Visita Paseo Agendada', badge: 'Cupo #3', color: 'dark' }
+      ]
+    };
+
+    // Zonas del Mapa Interactivo (El Alto / La Paz)
+    const mapZones = [
+      {
+        code: 'Z-01',
+        pillLabel: 'Z-01: Ciudad Satélite',
+        street: 'Av. Satélite / Calle 4',
+        eta: 'Entrega alimento en camino (6 min)',
+        etaClock: '12:45',
+        campusPill: 'Punto Acopio Satélite',
+        kilos: '45 kg en ruta',
+        routePath: 'M 65 190 Q 145 150 205 122',
+        dogId: 1,
+        slotsFree: '5 libres',
+        timelineStep: 'En Refugio Ciudad Satélite'
+      },
+      {
+        code: 'Z-02',
+        pillLabel: 'Z-02: Villa Adela',
+        street: 'Av. Bolivia / Plaza Villa Adela',
+        eta: 'Brigada veterinaria en punto (3 min)',
+        etaClock: '13:10',
+        campusPill: 'Brigada Villa Adela',
+        kilos: '30 kg entregados',
+        routePath: 'M 205 122 Q 130 165 65 190',
+        dogId: 2,
+        slotsFree: '3 libres',
+        timelineStep: 'Control Médico Villa Adela'
+      },
+      {
+        code: 'Z-03',
+        pillLabel: 'Z-03: Sopocachi / Prado',
+        street: 'Plaza Abaroa / Av. 20 de Octubre',
+        eta: 'Feria de adopción activa ahora',
+        etaClock: '14:00',
+        campusPill: 'Stand Solidario La Paz',
+        kilos: '60 kg recaudados',
+        routePath: 'M 205 122 Q 265 92 315 62',
+        dogId: 3,
+        slotsFree: '4 libres',
+        timelineStep: 'Feria Adopción Sopocachi'
+      }
+    ];
+
+    // Catálogo de Perritos con fotos reales + fallback visual seguro
+    const dogsCatalog = [
+      {
+        id: 1,
+        name: 'Toby',
+        age: '2 años',
+        weight: '14 kg',
+        breed: 'Mestizo Criollo',
+        category: 'Urgente',
+        status: 'Urgente',
+        zone: 'Refugio Ciudad Satélite · El Alto',
+        photo: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=500&q=80',
+        raised: 380,
+        goal: 500,
+        vaccines: 'Séxtuple + Rabia',
+        bio: 'Toby fue rescatado cerca de la Av. Juan Pablo II. Es sumamente noble, le encanta acompañar caminatas y se lleva de maravilla con niños y otros perritos.'
+      },
+      {
+        id: 2,
+        name: 'Canela',
+        age: '1.5 años',
+        weight: '11 kg',
+        breed: 'Mestiza Dorada',
+        category: 'Apadrinable',
+        status: 'Disponible',
+        zone: 'Punto Villa Adela · El Alto',
+        photo: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=500&q=80',
+        raised: 210,
+        goal: 250,
+        vaccines: 'Completa + Esterilizada',
+        bio: 'Canela protegió a sus cachorros durante el invierno alteño. Hoy busca una familia definitiva que le devuelva todo el amor que entregó.'
+      },
+      {
+        id: 3,
+        name: 'Luna',
+        age: '6 meses',
+        weight: '7 kg',
+        breed: 'Cocker Mestiza',
+        category: 'Cachorro',
+        status: 'Disponible',
+        zone: 'Hogar Temporal Sopocachi · La Paz',
+        photo: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=500&q=80',
+        raised: 150,
+        goal: 150,
+        vaccines: 'Al día',
+        bio: 'Juguetona, curiosa y tamaño ideal para departamento. Aprendió a dar la patita en solo dos días en su hogar temporal.'
+      },
+      {
+        id: 4,
+        name: 'Rocky',
+        age: '3 años',
+        weight: '22 kg',
+        breed: 'Pastor Mestizo',
+        category: 'Apadrinable',
+        status: 'Disponible',
+        zone: 'Refugio Río Seco · El Alto',
+        photo: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=500&q=80',
+        raised: 240,
+        goal: 300,
+        vaccines: 'Completa + Esterilizado',
+        bio: 'Un compañero leal y equilibrado. Ideal para familias con patio que busquen un guardián cariñoso.'
+      },
+      {
+        id: 5,
+        name: 'Chispita',
+        age: '4 meses',
+        weight: '5 kg',
+        breed: 'Mestiza Pequeña',
+        category: 'Cachorro',
+        status: 'Urgente',
+        zone: 'Refugio Ciudad Satélite · El Alto',
+        photo: 'https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&w=500&q=80',
+        raised: 110,
+        goal: 200,
+        vaccines: '1ra Dosis',
+        bio: 'Rescatada en la Feria 16 de Julio. Necesita completar su esquema de refuerzo y encontrar un hogar cálido.'
+      }
+    ];
+
+    // Productos Tienda Solidaria (Precio, Ganancia Emprendimiento, Donación Fundación)
+    const storeProducts = [
+      {
+        id: 1,
+        name: 'Pack Galletas Naturales Hígado & Avena',
+        tag: 'Producción Propia',
+        price: 25,
+        profit: 9,
+        donation: 5,
+        desc: 'Bolsa 250g horneada artesanalmente sin conservantes. Alta rentabilidad y rotación.'
+      },
+      {
+        id: 2,
+        name: 'Placa Identificadora QR Personalizada',
+        tag: 'Tecnología Mascota',
+        price: 35,
+        profit: 14,
+        donation: 7,
+        desc: 'Placa acrílica resistente al agua con perfil digital en caso de extravío.'
+      },
+      {
+        id: 3,
+        name: 'Correa Reflectiva Nocturna El Alto',
+        tag: 'Artesanía Local',
+        price: 45,
+        profit: 16,
+        donation: 9,
+        desc: 'Tejida con cinta reflectiva de alta visibilidad y mosquetón metálico.'
+      },
+      {
+        id: 4,
+        name: 'Combo Baño + Desparasitación Aliado',
+        tag: 'Veterinaria Aliada',
+        price: 80,
+        profit: 22,
+        donation: 15,
+        desc: 'Servicio completo en veterinarias aliadas de Ciudad Satélite y Sopocachi.'
+      }
+    ];
+
+    // =========================================================================
+    // NAVEGACIÓN ENTRE ESCRITORIO, SPLASH, PORTAL Y VISTAS OPERATIVAS
+    // =========================================================================
+    function openLauncher() {
+      document.getElementById('screen-launcher').classList.remove('hidden');
+      document.getElementById('screen-portal').classList.add('hidden');
+      document.getElementById('screen-main').classList.add('hidden');
+      document.getElementById('device-statusbar').classList.remove('bg-white', 'text-miu-ink');
+      document.getElementById('device-statusbar').classList.add('bg-miu-dark', 'text-white');
+    }
+
+    function launchPatitasApp(targetView = null) {
+      const launcher = document.getElementById('screen-launcher');
+      const splash = document.getElementById('screen-splash');
+      const bar = document.getElementById('splash-progress');
+
+      launcher.classList.add('hidden');
+      splash.classList.remove('hidden');
+      splash.classList.add('app-launching');
+      bar.style.width = '25%';
+
+      setTimeout(() => { bar.style.width = '85%'; }, 160);
+      setTimeout(() => {
+        splash.classList.add('hidden');
+        if (targetView) {
+          enterAppView(targetView);
+        } else {
+          openPortalScreen();
+        }
+      }, 620);
+    }
+
+    function openPortalScreen() {
+      document.getElementById('screen-launcher').classList.add('hidden');
+      document.getElementById('screen-main').classList.add('hidden');
+      const portal = document.getElementById('screen-portal');
+      portal.classList.remove('hidden');
+      portal.classList.add('view-animate');
+
+      const sb = document.getElementById('device-statusbar');
+      sb.classList.remove('bg-white', 'text-miu-ink');
+      sb.classList.add('bg-miu-dark', 'text-white');
+      syncAllMetricsUI();
+    }
+
+    function enterAppView(viewKey) {
+      document.getElementById('screen-launcher').classList.add('hidden');
+      document.getElementById('screen-portal').classList.add('hidden');
+      const main = document.getElementById('screen-main');
+      main.classList.remove('hidden');
+
+      const sb = document.getElementById('device-statusbar');
+      sb.classList.remove('bg-miu-dark', 'text-white');
+      sb.classList.add('bg-white', 'text-miu-ink');
+
+      // Ocultar sub-secciones
+      ['view-map', 'view-dogs', 'view-store', 'view-qr-panel'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+
+      const titleEl = document.getElementById('main-header-title');
+      if (viewKey === 'map') {
+        document.getElementById('view-map').classList.remove('hidden');
+        titleEl.textContent = 'Mapa y Refugios en Vivo';
+      } else if (viewKey === 'dogs') {
+        document.getElementById('view-dogs').classList.remove('hidden');
+        titleEl.textContent = 'Catálogo y Biografías';
+      } else if (viewKey === 'store') {
+        document.getElementById('view-store').classList.remove('hidden');
+        titleEl.textContent = 'Tienda Solidaria';
+      } else if (viewKey === 'qr') {
+        document.getElementById('view-qr-panel').classList.remove('hidden');
+        switchQrOrPanel('qr');
+        titleEl.textContent = 'Pase QR y Donación Láser';
+      } else if (viewKey === 'panel') {
+        document.getElementById('view-qr-panel').classList.remove('hidden');
+        switchQrOrPanel('panel');
+        titleEl.textContent = 'Panel Financiero y Control';
+      } else if (viewKey === 'install') {
+        document.getElementById('view-install').classList.remove('hidden');
+        titleEl.textContent = 'Instalar / Desinstalar Icono';
+      }
+
+      // Actualizar estado activo en barra inferior
+      document.querySelectorAll('.bottom-nav-btn').forEach(btn => {
+        const nav = btn.dataset.nav;
+        const active = (nav === viewKey) || (nav === 'panel' && (viewKey === 'qr' || viewKey === 'panel'));
+        if (active) {
+          btn.classList.remove('text-miu-muted');
+          btn.classList.add('text-amber-600');
+        } else {
+          btn.classList.add('text-miu-muted');
+          btn.classList.remove('text-amber-600');
+        }
+      });
+
+      document.getElementById('operative-scroll').scrollTo({ top: 0, behavior: 'smooth' });
+      syncAllMetricsUI();
+    }
+
+    function toggleFullscreenMode() {
+      document.body.classList.toggle('fullscreen-mode');
+      const isFull = document.body.classList.contains('fullscreen-mode');
+      document.getElementById('btn-fullscreen-label').querySelector('span').textContent = isFull ? 'Marco Móvil' : 'Expandir';
+    }
+
+    // =========================================================================
+    // SINCRONIZACIÓN DE MÉTRICAS EN VIVO EN TODA LA APP
+    // =========================================================================
+    function syncAllMetricsUI() {
+      const fundFormatted = `Bs ${appState.fundTotal.toLocaleString('es-BO')}`;
+      const profitFormatted = `Bs ${appState.entrepreneurProfit.toLocaleString('es-BO')}`;
+
+      document.getElementById('portal-fund-kpi').textContent = fundFormatted;
+      document.getElementById('portal-profit-kpi').textContent = profitFormatted;
+      document.getElementById('top-pill-fund').textContent = fundFormatted;
+      document.getElementById('panel-fund-val').textContent = fundFormatted;
+      document.getElementById('panel-profit-val').textContent = profitFormatted;
+      document.getElementById('portal-dogs-sub').textContent = `${dogsCatalog.length} perritos rescatados · Agenda paseos`;
+
+      // Anillo circular SVG
+      const pct = Math.min(100, Math.round((appState.fundTotal / appState.fundGoal) * 100));
+      document.getElementById('panel-ring-pct').textContent = `${pct}%`;
+      const circumference = 276.46;
+      document.getElementById('panel-ring-circle').style.strokeDashoffset = circumference - (pct / 100) * circumference;
+
+      document.getElementById('kpi-dogs-helped').textContent = dogsCatalog.length + 9;
+      document.getElementById('kpi-kilos').textContent = `${appState.kilosDelivered} kg`;
+      document.getElementById('kpi-tx-count').textContent = appState.txCount;
+
+      renderLedgerList();
+      updateCartBadge();
+    }
+
+    function renderLedgerList() {
+      const list = document.getElementById('live-ledger-list');
+      list.innerHTML = appState.ledger.slice(0, 6).map((item, idx) => {
+        const badgeStyle = item.color === 'emerald'
+          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+          : item.color === 'amber'
+            ? 'bg-miu-amber text-miu-dark'
+            : 'bg-miu-light text-miu-ink';
+        return `
+          <div class="flex items-center justify-between gap-2.5 py-2 border-b border-stone-100 last:border-none">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-9 h-9 rounded-full bg-miu-dark text-miu-amber font-extrabold text-xs flex items-center justify-center shrink-0">
+                ${item.name.charAt(0)}
+              </div>
+              <div class="min-w-0">
+                <p class="text-xs font-extrabold text-miu-ink truncate">${item.name}</p>
+                <p class="text-[10px] text-miu-muted truncate">${item.role} · ${item.detail}</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold shrink-0 ${badgeStyle}">${item.badge}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // =========================================================================
+    // PANTALLA 2: MAPA INTERACTIVO POR ZONAS
+    // =========================================================================
+    function selectMapZone(index) {
+      appState.selectedZoneIndex = index;
+      const z = mapZones[index];
+      const dog = dogsCatalog.find(d => d.id === z.dogId) || dogsCatalog[0];
+
+      // Pills de zona
+      const pillsContainer = document.getElementById('zone-pills-container');
+      pillsContainer.innerHTML = mapZones.map((item, i) => `
+        <button onclick="selectMapZone(${i})" class="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-extrabold transition flex items-center gap-1.5 ${i === index ? 'bg-miu-dark text-miu-amber shadow-xs' : 'bg-white text-miu-ink border border-stone-200'}">
+          <span class="w-2 h-2 rounded-full ${i === index ? 'bg-miu-amber' : 'bg-stone-300'}"></span>
+          <span>${item.pillLabel}</span>
+        </button>
+      `).join('');
+
+      document.getElementById('map-street-badge').textContent = z.street;
+      document.getElementById('map-eta-badge').textContent = z.eta;
+      document.getElementById('map-campus-pill').textContent = z.campusPill;
+      document.getElementById('map-kilos-pill').textContent = z.kilos;
+      document.getElementById('map-active-route').setAttribute('d', z.routePath);
+      document.getElementById('map-active-route-flow').setAttribute('d', z.routePath);
+
+      const imgEl = document.getElementById('zone-dog-img');
+      imgEl.src = dog.photo;
+      imgEl.onerror = function() { this.src = 'https://placehold.co/120x120/F5B800/14171F?text=' + encodeURIComponent(dog.name); };
+
+      document.getElementById('zone-dog-name').textContent = dog.name;
+      document.getElementById('zone-code-badge').textContent = `Zona ${z.code}`;
+      document.getElementById('zone-breed-text').textContent = `${dog.breed} · ${dog.age}`;
+      document.getElementById('zone-eta-clock').textContent = z.etaClock;
+      document.getElementById('zone-slots-text').textContent = z.slotsFree;
+      document.getElementById('timeline-zone-tag').textContent = z.code;
+      document.getElementById('timeline-current-step').textContent = z.timelineStep;
+    }
+
+    function openDogDetailByZone() {
+      const z = mapZones[appState.selectedZoneIndex];
+      openDogDetailModal(z.dogId);
+    }
+
+    // =========================================================================
+    // PANTALLA 3: CATÁLOGO DE PERRITOS, BIOGRAFÍA Y CROQUIS DE PASEOS
+    // =========================================================================
+    function setDogsCategory(cat) {
+      appState.selectedDogCategory = cat;
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        if (btn.dataset.cat === cat) {
+          btn.className = 'cat-btn px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-miu-dark text-miu-amber transition shrink-0';
+        } else {
+          btn.className = 'cat-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-miu-ink border border-stone-200 transition shrink-0';
+        }
+      });
+      renderDogsCatalog();
+    }
+
+    function renderDogsCatalog() {
+      const container = document.getElementById('dogs-cards-container');
+      const list = dogsCatalog.filter(d => appState.selectedDogCategory === 'todos' || d.category === appState.selectedDogCategory);
+
+      container.innerHTML = list.map(dog => {
+        const pct = Math.min(100, Math.round((dog.raised / dog.goal) * 100));
+        const statusBadge = dog.status === 'Urgente'
+          ? 'bg-red-100 text-red-700'
+          : dog.status === 'En Evaluación'
+            ? 'bg-amber-100 text-amber-800'
+            : 'bg-emerald-50 text-emerald-700';
+
+        return `
+          <div onclick="openDogDetailModal(${dog.id})" class="bg-white rounded-3xl p-3.5 shadow-card-soft border border-stone-100 hover:border-miu-amber transition cursor-pointer flex gap-3.5 items-center">
+            <img src="${dog.photo}" onerror="this.src='https://placehold.co/160x160/F5B800/14171F?text=${encodeURIComponent(dog.name)}'" alt="${dog.name}" class="w-22 h-24 w-[88px] rounded-2xl object-cover shrink-0 bg-amber-100" />
+            <div class="flex-1 min-w-0 space-y-1.5">
+              <div class="flex items-center justify-between gap-2">
+                <h4 class="font-extrabold text-base text-miu-ink truncate">${dog.name} <span class="text-xs font-medium text-miu-muted">· ${dog.age}</span></h4>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold shrink-0 ${statusBadge}">${dog.status}</span>
+              </div>
+              <p class="text-[11px] font-medium text-miu-muted truncate">📍 ${dog.zone}</p>
+              <p class="text-[11px] text-stone-600 line-clamp-2 leading-snug">${dog.bio}</p>
+              <div class="pt-0.5">
+                <div class="flex justify-between text-[10px] font-bold mb-0.5">
+                  <span class="text-miu-muted">Meta alimento/salud</span>
+                  <span class="text-emerald-700">Bs ${dog.raised} / Bs ${dog.goal}</span>
+                </div>
+                <div class="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-miu-amber rounded-full" style="width:${pct}%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openDogDetailModal(dogId) {
+      const dog = dogsCatalog.find(d => d.id === dogId);
+      if (!dog) return;
+      appState.selectedWalkSlot = null;
+
+      const slots = [
+        { num: 1, time: '09:30 AM', busy: true },
+        { num: 2, time: '10:30 AM', busy: false },
+        { num: 3, time: '11:30 AM', busy: false },
+        { num: 4, time: '15:00 PM', busy: true },
+        { num: 5, time: '16:00 PM', busy: false },
+        { num: 6, time: '17:00 PM', busy: false }
+      ];
+
+      document.getElementById('modal-dog-content').innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="px-2.5 py-1 rounded-full bg-miu-amber text-miu-dark text-[10px] font-extrabold uppercase">Ficha Oficial Rescatado</span>
+          <button onclick="closeDogDetailModal()" class="w-8 h-8 rounded-full bg-stone-100 font-bold text-miu-ink">✕</button>
+        </div>
+
+        <div class="flex gap-3.5 items-center">
+          <img src="${dog.photo}" onerror="this.src='https://placehold.co/160x160/F5B800/14171F?text=${encodeURIComponent(dog.name)}'" class="w-24 h-24 rounded-2xl object-cover shrink-0 border-2 border-miu-amber" />
+          <div class="space-y-1">
+            <h3 class="text-xl font-extrabold text-miu-ink">${dog.name}</h3>
+            <p class="text-xs font-semibold text-miu-muted">${dog.breed} · ${dog.age} · ${dog.weight}</p>
+            <span class="inline-block px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold">💉 ${dog.vaccines}</span>
+            <p class="text-[11px] font-bold text-amber-700">📍 ${dog.zone}</p>
+          </div>
+        </div>
+
+        <div class="bg-miu-light rounded-2xl p-3.5 space-y-1">
+          <span class="text-[10px] font-extrabold uppercase text-miu-muted">Biografía e Historia</span>
+          <p class="text-xs text-miu-ink leading-relaxed">${dog.bio}</p>
+        </div>
+
+        <!-- Croquis Interactivo de Cupos de Paseo Solidario (Estilo selección de asientos MIU) -->
+        <div class="bg-miu-light rounded-2xl p-3.5 border border-stone-200/80 space-y-2.5">
+          <div class="flex justify-between items-center">
+            <div>
+              <h4 class="text-xs font-extrabold text-miu-ink">Croquis de Cupos de Paseo / Visita</h4>
+              <p class="text-[10px] text-miu-muted">Toca un horario libre para reservar tu visita al refugio</p>
+            </div>
+            <span class="px-2 py-0.5 rounded bg-white text-[10px] font-bold border border-stone-200">Sábado</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            ${slots.map(s => `
+              <button type="button" ${s.busy ? 'disabled' : `onclick="selectWalkSlot(${s.num}, '${s.time}', this)"`}
+                class="walk-slot-btn py-2 px-1 rounded-xl border text-center transition ${s.busy ? 'bg-stone-200/70 border-stone-200 text-stone-400 cursor-not-allowed' : 'bg-white border-stone-200 hover:border-miu-amber text-miu-ink'}">
+                <span class="block text-xs font-extrabold">Cupo #${s.num}</span>
+                <span class="block text-[10px]">${s.busy ? 'Ocupado' : s.time}</span>
+              </button>
+            `).join('')}
+          </div>
+
+          <button onclick="confirmWalkReservation(${dog.id})" class="w-full py-2.5 rounded-xl bg-miu-dark text-miu-amber font-extrabold text-xs hover:bg-stone-800 transition">
+            Confirmar Reserva de Visita
+          </button>
+        </div>
+
+        <!-- Acciones directas de Adopción y Plato de Comida -->
+        <div class="grid grid-cols-2 gap-2.5 pt-1">
+          <button onclick="requestAdoption(${dog.id})" class="bg-miu-emerald hover:bg-emerald-600 text-white font-extrabold text-xs py-3.5 rounded-2xl transition shadow-xs">
+            Solicitar Adopción
+          </button>
+          <button onclick="donateBowlForDog(${dog.id}, 15)" class="bg-miu-amber hover:bg-miu-amberHover text-miu-dark font-extrabold text-xs py-3.5 rounded-2xl transition shadow-xs">
+            Invitar Plato (Bs 15)
+          </button>
+        </div>
+      `;
+
+      document.getElementById('modal-dog-detail').classList.remove('hidden');
+    }
+
+    function closeDogDetailModal() {
+      document.getElementById('modal-dog-detail').classList.add('hidden');
+    }
+
+    function selectWalkSlot(num, time, btnEl) {
+      appState.selectedWalkSlot = { num, time };
+      document.querySelectorAll('.walk-slot-btn').forEach(b => {
+        if (!b.disabled) {
+          b.className = 'walk-slot-btn py-2 px-1 rounded-xl border bg-white border-stone-200 text-miu-ink text-center transition';
+        }
+      });
+      btnEl.className = 'walk-slot-btn py-2 px-1 rounded-xl border-2 border-miu-dark bg-miu-amber text-miu-dark text-center transition shadow-xs';
+    }
+
+    function confirmWalkReservation(dogId) {
+      if (!appState.selectedWalkSlot) {
+        showToast('Selecciona primero un cupo libre en el croquis');
+        return;
+      }
+      const dog = dogsCatalog.find(d => d.id === dogId);
+      appState.txCount += 1;
+      appState.ledger.unshift({
+        name: 'Visitante Solidario',
+        role: `Refugio · ${appState.selectedWalkSlot.time}`,
+        detail: `Paseo con ${dog.name}`,
+        badge: `Cupo #${appState.selectedWalkSlot.num}`,
+        color: 'dark'
+      });
+      closeDogDetailModal();
+      syncAllMetricsUI();
+      showToast(`¡Visita confirmada con ${dog.name} a las ${appState.selectedWalkSlot.time}!`);
+    }
+
+    function requestAdoption(dogId) {
+      const dog = dogsCatalog.find(d => d.id === dogId);
+      if (!dog) return;
+      dog.status = 'En Evaluación';
+      appState.txCount += 1;
+      appState.ledger.unshift({
+        name: 'Postulante Adopción',
+        role: 'Pre-evaluación enviada',
+        detail: `Solicitud por ${dog.name}`,
+        badge: 'En Evaluación',
+        color: 'amber'
+      });
+      closeDogDetailModal();
+      renderDogsCatalog();
+      syncAllMetricsUI();
+      showToast(`¡Solicitud registrada para ${dog.name}! Revisa el Panel en Vivo.`);
+    }
+
+    function donateBowlForDog(dogId, amount) {
+      const dog = dogsCatalog.find(d => d.id === dogId);
+      if (dog) dog.raised += amount;
+      appState.fundTotal += amount;
+      appState.kilosDelivered += 2;
+      appState.txCount += 1;
+      appState.ledger.unshift({
+        name: 'Aporte Express QR',
+        role: 'Plato de alimento',
+        detail: `Para ${dog ? dog.name : 'Refugio'}`,
+        badge: `+Bs ${amount}`,
+        color: 'emerald'
+      });
+      closeDogDetailModal();
+      renderDogsCatalog();
+      syncAllMetricsUI();
+      showToast(`¡Gracias! Sumaste Bs ${amount} al fondo de ${dog.name}.`);
+    }
+
+    // =========================================================================
+    // PANTALLA 4: TIENDA SOLIDARIA Y SIMULADOR DE RENTABILIDAD
+    // =========================================================================
+    function renderStoreItems() {
+      const container = document.getElementById('store-items-grid');
+      container.innerHTML = storeProducts.map(p => `
+        <div class="bg-white rounded-3xl p-4 shadow-card-soft border border-stone-100 space-y-2.5">
+          <div class="flex justify-between items-start gap-2">
+            <div>
+              <span class="px-2 py-0.5 rounded-md bg-miu-light text-miu-muted text-[10px] font-bold uppercase">${p.tag}</span>
+              <h4 class="font-extrabold text-sm text-miu-ink mt-1">${p.name}</h4>
+            </div>
+            <span class="text-base font-extrabold text-miu-ink shrink-0">Bs ${p.price}</span>
+          </div>
+          <p class="text-xs text-miu-muted leading-relaxed">${p.desc}</p>
+          <div class="flex items-center justify-between gap-2 pt-2 border-t border-stone-100">
+            <div class="flex flex-wrap gap-1.5">
+              <span class="px-2 py-0.5 rounded-lg bg-amber-50 text-amber-800 text-[10px] font-extrabold">Ganancia: Bs ${p.profit}</span>
+              <span class="px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 text-[10px] font-extrabold">Fundación: Bs ${p.donation}</span>
+            </div>
+            <button onclick="addProductToCart(${p.id})" class="px-3.5 py-2 rounded-xl bg-miu-dark hover:bg-stone-800 text-miu-amber font-extrabold text-xs transition shrink-0">
+              + Agregar
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateSalesSimulator(units) {
+      const u = Number(units);
+      document.getElementById('sim-units-label').textContent = `${u} ventas`;
+      document.getElementById('sim-profit-result').textContent = `Bs ${(u * 16).toLocaleString('es-BO')}`;
+      document.getElementById('sim-fund-result').textContent = `Bs ${(u * 8).toLocaleString('es-BO')}`;
+    }
+
+    function addProductToCart(prodId) {
+      const existing = appState.cart.find(c => c.id === prodId);
+      if (existing) existing.qty += 1;
+      else appState.cart.push({ id: prodId, qty: 1 });
+      updateCartBadge();
+      const prod = storeProducts.find(p => p.id === prodId);
+      showToast(`Agregado: ${prod.name}`);
+    }
+
+    function updateCartBadge() {
+      const totalItems = appState.cart.reduce((acc, item) => acc + item.qty, 0);
+      const el = document.getElementById('store-cart-count');
+      if (el) el.textContent = totalItems;
+    }
+
+    function openCartDrawer() {
+      renderCartItems();
+      document.getElementById('modal-cart').classList.remove('hidden');
+    }
+
+    function closeCartDrawer() {
+      document.getElementById('modal-cart').classList.add('hidden');
+    }
+
+    function renderCartItems() {
+      const list = document.getElementById('cart-items-list');
+      let total = 0, profit = 0, donation = 0;
+
+      if (appState.cart.length === 0) {
+        list.innerHTML = `<p class="text-xs text-center text-miu-muted py-4">Tu carrito está vacío. Agrega productos solidarios.</p>`;
+      } else {
+        list.innerHTML = appState.cart.map(item => {
+          const p = storeProducts.find(prod => prod.id === item.id);
+          total += p.price * item.qty;
+          profit += p.profit * item.qty;
+          donation += p.donation * item.qty;
+          return `
+            <div class="flex items-center justify-between bg-miu-light p-2.5 rounded-2xl">
+              <div class="min-w-0 pr-2">
+                <p class="text-xs font-extrabold text-miu-ink truncate">${p.name}</p>
+                <p class="text-[10px] text-miu-muted">Bs ${p.price} c/u · Ganancia Bs ${p.profit * item.qty} · Fund. Bs ${p.donation * item.qty}</p>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button onclick="changeCartQty(${p.id}, -1)" class="w-6 h-6 rounded-lg bg-white border border-stone-200 font-bold text-xs">-</button>
+                <span class="text-xs font-extrabold w-4 text-center">${item.qty}</span>
+                <button onclick="changeCartQty(${p.id}, 1)" class="w-6 h-6 rounded-lg bg-white border border-stone-200 font-bold text-xs">+</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      const cost = total - profit - donation;
+      document.getElementById('cart-cost-txt').textContent = `Bs ${cost}`;
+      document.getElementById('cart-profit-txt').textContent = `+Bs ${profit}`;
+      document.getElementById('cart-fund-txt').textContent = `+Bs ${donation}`;
+      document.getElementById('cart-total-txt').textContent = `Bs ${total}`;
+    }
+
+    function changeCartQty(prodId, delta) {
+      const idx = appState.cart.findIndex(c => c.id === prodId);
+      if (idx === -1) return;
+      appState.cart[idx].qty += delta;
+      if (appState.cart[idx].qty <= 0) appState.cart.splice(idx, 1);
+      renderCartItems();
+      updateCartBadge();
+    }
+
+    function completeStorePurchase() {
+      if (appState.cart.length === 0) return;
+      let profit = 0, donation = 0, itemsCount = 0;
+      appState.cart.forEach(item => {
+        const p = storeProducts.find(prod => prod.id === item.id);
+        profit += p.profit * item.qty;
+        donation += p.donation * item.qty;
+        itemsCount += item.qty;
+      });
+
+      appState.entrepreneurProfit += profit;
+      appState.fundTotal += donation;
+      appState.kilosDelivered += Math.max(1, Math.round(donation / 7));
+      appState.txCount += 1;
+      appState.ledger.unshift({
+        name: 'Cliente Tienda QR',
+        role: `${itemsCount} prod. solidarios`,
+        detail: `Ganancia +Bs ${profit}`,
+        badge: `+Bs ${donation} Fund.`,
+        color: 'emerald'
+      });
+
+      appState.cart = [];
+      closeCartDrawer();
+      syncAllMetricsUI();
+      enterAppView('panel');
+      showToast(`¡Venta acreditada! +Bs ${profit} ganancia y +Bs ${donation} fundación.`);
+    }
+
+    // =========================================================================
+    // PANTALLA 5: PASE QR DINÁMICO CON ESCANEO LÁSER Y PANEL DE CONTROL
+    // =========================================================================
+    function switchQrOrPanel(sub) {
+      const qrBox = document.getElementById('subview-qr');
+      const panelBox = document.getElementById('subview-panel');
+      const btnQr = document.getElementById('tab-sub-qr');
+      const btnPanel = document.getElementById('tab-sub-panel');
+
+      if (sub === 'qr') {
+        qrBox.classList.remove('hidden');
+        panelBox.classList.add('hidden');
+        btnQr.className = 'py-2 rounded-xl text-xs font-extrabold bg-white text-miu-ink shadow-xs transition';
+        btnPanel.className = 'py-2 rounded-xl text-xs font-bold text-miu-muted transition';
+      } else {
+        qrBox.classList.add('hidden');
+        panelBox.classList.remove('hidden');
+        btnPanel.className = 'py-2 rounded-xl text-xs font-extrabold bg-white text-miu-ink shadow-xs transition';
+        btnQr.className = 'py-2 rounded-xl text-xs font-bold text-miu-muted transition';
+      }
+    }
+
+    function setQrAmount(amt) {
+      appState.qrAmount = amt;
+      document.getElementById('qr-amount-badge').textContent = `Bs ${amt.toFixed(2)}`;
+      document.querySelectorAll('.qr-amt-btn').forEach(btn => {
+        const val = Number(btn.textContent.replace('Bs ', ''));
+        btn.className = val === amt
+          ? 'qr-amt-btn py-2 rounded-xl border-2 border-miu-amber bg-amber-50 text-xs font-extrabold text-miu-ink'
+          : 'qr-amt-btn py-2 rounded-xl border border-stone-200 bg-miu-light text-xs font-extrabold text-miu-ink';
+      });
+    }
+
+    function triggerLaserScanSimulation() {
+      const rand = Math.floor(1000 + Math.random() * 9000);
+      appState.qrToken = `#PAT-${rand}-VERIFICADO`;
+      document.getElementById('qr-dynamic-token').textContent = `TOKEN: ${appState.qrToken}`;
+
+      const amt = appState.qrAmount;
+      appState.fundTotal += amt;
+      appState.kilosDelivered += Math.max(1, Math.round(amt / 8));
+      appState.txCount += 1;
+
+      appState.ledger.unshift({
+        name: 'Donante QR Láser',
+        role: `Token #PAT-${rand}`,
+        detail: 'Escaneo instantáneo',
+        badge: `+Bs ${amt}`,
+        color: 'emerald'
+      });
+
+      syncAllMetricsUI();
+      showToast(`⚡ Escaneo Láser Exitoso: +Bs ${amt} acreditados al Refugio`);
+      setTimeout(() => switchQrOrPanel('panel'), 650);
+    }
+
+    // =========================================================================
+    // REGISTRO DE NUEVO PERRITO EN VIVO (PARA DEMOSTRACIÓN EN PRESENTACIÓN)
+    // =========================================================================
+    function openNewDogModal() {
+      document.getElementById('modal-new-dog').classList.remove('hidden');
+    }
+
+    function closeNewDogModal() {
+      document.getElementById('modal-new-dog').classList.add('hidden');
+    }
+
+    function handleAddNewDog(e) {
+      e.preventDefault();
+      const name = document.getElementById('new-dog-name').value.trim();
+      const age = document.getElementById('new-dog-age').value.trim();
+      const zone = document.getElementById('new-dog-zone').value;
+      const bio = document.getElementById('new-dog-bio').value.trim();
+
+      const newDog = {
+        id: Date.now(),
+        name,
+        age,
+        weight: '10 kg',
+        breed: 'Mestizo Rescatado',
+        category: 'Urgente',
+        status: 'Nuevo',
+        zone,
+        photo: 'https://images.unsplash.com/photo-1588943211346-0908a1fb0b01?auto=format&fit=crop&w=500&q=80',
+        raised: 20,
+        goal: 200,
+        vaccines: 'En revisión inicial',
+        bio
+      };
+
+      dogsCatalog.unshift(newDog);
+      appState.txCount += 1;
+      appState.ledger.unshift({
+        name: 'Fundación Aliada',
+        role: zone.split('·')[0],
+        detail: `Nuevo rescate: ${name}`,
+        badge: 'Publicado',
+        color: 'amber'
+      });
+
+      e.target.reset();
+      closeNewDogModal();
+      renderDogsCatalog();
+      syncAllMetricsUI();
+      enterAppView('dogs');
+      showToast(`🐾 ¡${name} fue registrado y ya aparece en el catálogo!`);
+    }
+
+    // =========================================================================
+    // TOAST & RELOJ EN VIVO
+    // =========================================================================
+    let toastTimer = null;
+    function showToast(text) {
+      const box = document.getElementById('app-toast');
+      document.getElementById('app-toast-text').textContent = text;
+      box.classList.remove('hidden');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => box.classList.add('hidden'), 3000);
+    }
+
+    function updateDeviceClocks() {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('launcher-big-time').textContent = `${hh}:${mm}`;
+      document.getElementById('live-clock').textContent = `${hh}:${mm}`;
+    }
+
+    // =========================================================================
+    // SOPORTE PWA DINÁMICO (MANIFEST EMBEDDED + SERVICE WORKER + GUÍA)
+    // =========================================================================
+    let deferredInstallPrompt = null;
+
+    function createBrandIconDataUrl(size = 192) {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+
+      // Fondo negro profundo con borde rosa crema
+      ctx.fillStyle = '#09090B';
+      ctx.beginPath();
+      ctx.roundRect(0, 0, size, size, size * 0.22);
+      ctx.fill();
+
+      ctx.strokeStyle = '#EC4899';
+      ctx.lineWidth = Math.max(4, size * 0.035);
+      ctx.beginPath();
+      ctx.roundRect(size * 0.04, size * 0.04, size * 0.92, size * 0.92, size * 0.2);
+      ctx.stroke();
+
+      // Huella en rosa vibrante (#EC4899)
+      ctx.fillStyle = '#EC4899';
+      const pads = [
+        [0.31, 0.37, 0.085],
+        [0.44, 0.26, 0.085],
+        [0.60, 0.26, 0.085],
+        [0.73, 0.37, 0.085]
+      ];
+      pads.forEach(([px, py, pr]) => {
+        ctx.beginPath();
+        ctx.arc(size * px, size * py, size * pr, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      ctx.beginPath();
+      ctx.ellipse(size * 0.52, size * 0.62, size * 0.22, size * 0.17, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      return canvas.toDataURL('image/png');
+    }
+
+    function setupDynamicPwa() {
+      try {
+        const icon192 = createBrandIconDataUrl(192);
+        const icon512 = createBrandIconDataUrl(512);
+        const appleLink = document.getElementById('pwa-apple-icon');
+        if (appleLink) appleLink.href = icon192;
+
+        const manifestObj = {
+          name: 'PATITAS | EL ALTO - Red Solidaria Animal',
+          short_name: 'Patitas App',
+          description: 'Adopción de perritos, donaciones QR y emprendimiento social en El Alto y La Paz.',
+          start_url: './',
+          display: 'standalone',
+          background_color: '#09090B',
+          theme_color: '#EC4899',
+          orientation: 'portrait',
+          icons: [
+            { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+            { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+          ]
+        };
+
+        const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+        const manifestUrl = URL.createObjectURL(manifestBlob);
+        const manifestEl = document.getElementById('pwa-manifest-link');
+        if (manifestEl) manifestEl.href = manifestUrl;
+
+        if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
+          const swCode = `
+            const CACHE_NAME = 'patitas-el-alto-v1';
+            self.addEventListener('install', (e) => {
+              self.skipWaiting();
+            });
+            self.addEventListener('activate', (e) => {
+              e.waitUntil(self.clients.claim());
+            });
+            self.addEventListener('fetch', (e) => {
+              if (e.request.method !== 'GET') return;
+              e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+            });
+          `;
+          const swBlob = new Blob([swCode], { type: 'application/javascript' });
+          const swUrl = URL.createObjectURL(swBlob);
+          navigator.serviceWorker.register(swUrl).catch(() => {});
+        }
+
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        const badge = document.getElementById('pwa-status-badge');
+        const pill = document.getElementById('top-install-pill');
+        if (isStandalone) {
+          if (badge) {
+            badge.textContent = 'Instalada';
+            badge.className = 'px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold';
+          }
+          if (pill) pill.textContent = 'App PWA';
+        }
+      } catch (err) {
+        // Fallback silencioso si el entorno restringe Blob URLs
+      }
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      const btnText = document.getElementById('btn-install-pwa-text');
+      if (btnText) btnText.textContent = 'Instalar Ahora en Este Equipo';
+    });
+
+    function handleInstallPwaClick() {
+      const feedback = document.getElementById('pwa-install-feedback');
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.then((choice) => {
+          deferredInstallPrompt = null;
+          if (feedback) {
+            feedback.classList.remove('hidden');
+            feedback.textContent = choice.outcome === 'accepted'
+              ? '¡Listo! El icono de Patitas El Alto se agregó a tu dispositivo.'
+              : 'Instalación cancelada. Puedes volver a intentarlo o seguir los pasos manuales de abajo.';
+          }
+        });
+        return;
+      }
+
+      if (feedback) {
+        feedback.classList.remove('hidden');
+        feedback.innerHTML = '<strong>Vista previa o navegador sin prompt automático:</strong> En Android Chrome toca <strong>⋮ &gt; Instalar aplicación</strong> (o <em>Agregar a la pantalla principal</em>). En PC Chrome/Edge haz clic en el icono de instalación de la barra de dirección o menú <strong>⋮</strong>.';
+      }
+      showToast('Revisa los pasos de instalación abajo o en el menú del navegador');
+    }
+
+    function switchGuideTab(mode) {
+      const btnInst = document.getElementById('guide-tab-install');
+      const btnUninst = document.getElementById('guide-tab-uninstall');
+      const boxInst = document.getElementById('guide-content-install');
+      const boxUninst = document.getElementById('guide-content-uninstall');
+
+      if (mode === 'install') {
+        boxInst.classList.remove('hidden');
+        boxUninst.classList.add('hidden');
+        btnInst.className = 'px-2.5 py-1 rounded-lg bg-miu-dark text-white text-[10px] font-extrabold';
+        btnUninst.className = 'px-2.5 py-1 rounded-lg text-miu-muted text-[10px] font-bold';
+      } else {
+        boxUninst.classList.remove('hidden');
+        boxInst.classList.add('hidden');
+        btnUninst.className = 'px-2.5 py-1 rounded-lg bg-miu-dark text-white text-[10px] font-extrabold';
+        btnInst.className = 'px-2.5 py-1 rounded-lg text-miu-muted text-[10px] font-bold';
+      }
+    }
+
+    // Inicialización al cargar
+    window.addEventListener('DOMContentLoaded', () => {
+      setupDynamicPwa();
+      updateDeviceClocks();
+      setInterval(updateDeviceClocks, 15000);
+      selectMapZone(0);
+      renderDogsCatalog();
+      renderStoreItems();
+      syncAllMetricsUI();
+    });
+  </script>
+</body>
+</html>
